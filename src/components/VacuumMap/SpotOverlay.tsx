@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useTransformContext, useTransformEffect } from 'react-zoom-pan-pinch';
 import type { Spot } from '@/types/homeassistant';
 import { useMachineState } from '@/contexts';
@@ -8,11 +8,11 @@ interface SpotOverlayProps {
   onSpotsChange: (spots: Spot[]) => void;
   clearAllLabel: string;
   removeSpotLabel: string;
-  contentRef: React.RefObject<HTMLDivElement | null>;
 }
 
-export function SpotOverlay({ spots, onSpotsChange, clearAllLabel, removeSpotLabel, contentRef }: SpotOverlayProps) {
+export function SpotOverlay({ spots, onSpotsChange, clearAllLabel, removeSpotLabel }: SpotOverlayProps) {
   const transformContext = useTransformContext();
+  const containerRef = useRef<HTMLDivElement>(null);
   const { phase } = useMachineState();
   const isInCleaningSession = phase === 'cleaning' || phase === 'paused';
   const [scale, setScale] = useState(transformContext.state.scale);
@@ -23,24 +23,18 @@ export function SpotOverlay({ spots, onSpotsChange, clearAllLabel, removeSpotLab
     }, [])
   );
 
-  const getContentCoordinates = useCallback(
-    (clientX: number, clientY: number): Spot | null => {
-      const content = contentRef.current;
-      if (!content) return null;
+  const getContentCoordinates = useCallback((clientX: number, clientY: number): Spot | null => {
+    const container = containerRef.current;
+    if (!container) return null;
 
-      const rect = content.getBoundingClientRect();
-      const currentScale = transformContext.state.scale;
-      const width = rect.width / currentScale;
-      const height = rect.height / currentScale;
-      if (width <= 0 || height <= 0) return null;
+    const rect = container.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return null;
 
-      return {
-        x: Math.max(0, Math.min(100, ((clientX - rect.left) / currentScale / width) * 100)),
-        y: Math.max(0, Math.min(100, ((clientY - rect.top) / currentScale / height) * 100)),
-      };
-    },
-    [contentRef, transformContext]
-  );
+    return {
+      x: Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100)),
+      y: Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100)),
+    };
+  }, []);
 
   const handleContentClick = (event: React.MouseEvent<HTMLDivElement>): void => {
     if (isInCleaningSession) return;
@@ -62,7 +56,7 @@ export function SpotOverlay({ spots, onSpotsChange, clearAllLabel, removeSpotLab
   const counterScale = 1 / scale;
 
   return (
-    <div className="vacuum-map__spot-container" onClick={handleContentClick}>
+    <div ref={containerRef} className="vacuum-map__spot-container" onClick={handleContentClick}>
       {spots.map((spot, index) => (
         <button
           key={`${spot.x}-${spot.y}-${index}`}

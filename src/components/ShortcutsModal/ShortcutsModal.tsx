@@ -5,7 +5,6 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { getEntityState } from '@/hooks';
 import { useEntity, useHass } from '@/contexts';
 import { parseShortcuts, type ShortcutData } from './shortcutUtils';
-import './ShortcutsModal.scss';
 
 interface ShortcutsModalProps {
   opened: boolean;
@@ -37,14 +36,17 @@ export function ShortcutsModal({ opened, onClose }: ShortcutsModalProps) {
       }
     };
     const closeOnEscape = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') setActiveMenuId(null);
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      setActiveMenuId(null);
     };
 
+    // Capture runs before the dialog's own Escape handler, so Escape closes only this menu.
     document.addEventListener('mousedown', closeOnOutsideClick);
-    document.addEventListener('keydown', closeOnEscape);
+    document.addEventListener('keydown', closeOnEscape, true);
     return () => {
       document.removeEventListener('mousedown', closeOnOutsideClick);
-      document.removeEventListener('keydown', closeOnEscape);
+      document.removeEventListener('keydown', closeOnEscape, true);
     };
   }, [activeMenuId]);
 

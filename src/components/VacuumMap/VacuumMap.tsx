@@ -10,7 +10,8 @@ import type {
 } from '@/types/homeassistant';
 import { useTranslation, type MapGeometry } from '@/hooks';
 import { useHass, useMachineState, useConfig, useEntity } from '@/contexts';
-import { STORAGE_KEY, isRobotBusy } from '@/constants';
+import { STORAGE_KEY, isRobotBusy, vacuumStorageKey } from '@/constants';
+import { containedRect, type PictureRect } from '@/utils/zoneConverter';
 import { RoomSegments } from './RoomSegments';
 import { MapControls } from './MapControls';
 import { RoomListView } from './RoomListView';
@@ -19,7 +20,6 @@ import { SpotOverlay } from './SpotOverlay';
 import { VacuumPositionMarker } from './VacuumPositionMarker';
 import { ChargerMarker } from './ChargerMarker';
 import { RoomLabels } from './RoomLabels';
-import './VacuumMap.scss';
 
 interface VacuumMapProps {
   mapEntityId: string;
@@ -33,7 +33,13 @@ interface VacuumMapProps {
   spots: Spot[];
   onSpotsChange: (spots: Spot[]) => void;
   onImageDimensionsChange?: (width: number, height: number, imageToken: string) => void;
+  onImageError?: (imageToken: string) => void;
   defaultRoomView?: RoomViewMode;
+}
+
+function measurePicture(img: HTMLImageElement): PictureRect | null {
+  const rect = containedRect(img.offsetWidth, img.offsetHeight, img.naturalWidth, img.naturalHeight);
+  return rect && { ...rect, left: img.offsetLeft + rect.left, top: img.offsetTop + rect.top };
 }
 
 // Separate component to access zoom controls via hook
@@ -90,6 +96,7 @@ export function VacuumMap({
   spots,
   onSpotsChange,
   onImageDimensionsChange,
+  onImageError,
   defaultRoomView = 'map',
 }: VacuumMapProps) {
   const { t } = useTranslation();
@@ -102,20 +109,22 @@ export function VacuumMap({
   const entityPicture = mapEntity?.attributes?.entity_picture;
   const mapUrl = typeof entityPicture === 'string' ? entityPicture : undefined;
   const mapRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
   const resetTransformRef = useRef<(() => void) | null>(null);
   const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
-  const [loadedMapUrl, setLoadedMapUrl] = useState(mapUrl);
-  if (mapUrl !== loadedMapUrl) {
-    setLoadedMapUrl(mapUrl);
-    setImageDimensions({ width: 0, height: 0 });
-  }
+  const [pictureFrame, setPictureFrame] = useState<PictureRect | null>(null);
+  const observeImage = useCallback((img: HTMLImageElement | null) => {
+    if (!img) return;
+    const observer = new ResizeObserver(() => setPictureFrame(measurePicture(img)));
+    observer.observe(img);
+    return () => observer.disconnect();
+  }, []);
   const [roomViewMode, setRoomViewMode] = useState<RoomViewMode>(defaultRoomView);
+  const mapLockedKey = vacuumStorageKey(STORAGE_KEY.MAP_LOCKED, config.entity);
 
   // Map lock state - persisted to localStorage, default: locked
   const [isMapLocked, setIsMapLocked] = useState(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY.MAP_LOCKED);
+      const stored = localStorage.getItem(mapLockedKey);
       return stored === null ? true : stored === 'true';
     } catch {
       // localStorage not available
@@ -136,11 +145,11 @@ export function VacuumMap({
     }
     setIsMapLocked(newLocked);
     try {
-      localStorage.setItem(STORAGE_KEY.MAP_LOCKED, String(newLocked));
+      localStorage.setItem(mapLockedKey, String(newLocked));
     } catch {
       // localStorage not available
     }
-  }, [isMapLocked]);
+  }, [isMapLocked, mapLockedKey]);
 
   // Effective view mode: use user selection only in room mode, otherwise default
   const effectiveRoomViewMode = selectedMode === 'room' ? roomViewMode : defaultRoomView;
@@ -165,10 +174,15 @@ export function VacuumMap({
       const img = e.currentTarget;
       if (!mapUrl || !img.naturalWidth || !img.naturalHeight) return;
       setImageDimensions({ width: img.naturalWidth, height: img.naturalHeight });
+      setPictureFrame(measurePicture(img));
       onImageDimensionsChange?.(img.naturalWidth, img.naturalHeight, mapUrl);
     },
     [mapUrl, onImageDimensionsChange]
   );
+
+  const handleImageError = useCallback(() => {
+    if (mapUrl) onImageError?.(mapUrl);
+  }, [mapUrl, onImageError]);
 
   // Determine if panning should be enabled (disabled when locked or in zone mode for zone creation)
   const isPanningEnabled = !isMapLocked && selectedMode !== 'zone';
@@ -222,12 +236,14 @@ export function VacuumMap({
               justifyContent: 'center',
             }}
           >
-            <div className="vacuum-map__content" ref={contentRef}>
+            <div className="vacuum-map__content">
               <img
+                ref={observeImage}
                 src={hass.hassUrl(mapUrl)}
                 alt="Vacuum Map"
                 className="vacuum-map__image"
                 onLoad={handleImageLoad}
+                onError={handleImageError}
                 draggable={false}
               />
 
@@ -276,23 +292,23 @@ export function VacuumMap({
                   />
                 )}
 
-              {selectedMode === 'zone' && areaSelectionMode === 'zone' && (
-                <ZoneOverlay
-                  zones={zone}
-                  onZonesChange={onZoneChange}
-                  clearZoneLabel={t('vacuum_map.clear_zone')}
-                  contentRef={contentRef}
-                />
-              )}
-
-              {selectedMode === 'zone' && areaSelectionMode === 'spot' && (
-                <SpotOverlay
-                  spots={spots}
-                  onSpotsChange={onSpotsChange}
-                  clearAllLabel={t('vacuum_map.clear_spots')}
-                  removeSpotLabel={t('vacuum_map.remove_spot')}
-                  contentRef={contentRef}
-                />
+              {selectedMode === 'zone' && pictureFrame && (
+                <div className="vacuum-map__picture-frame" style={pictureFrame}>
+                  {areaSelectionMode === 'zone' ? (
+                    <ZoneOverlay
+                      zones={zone}
+                      onZonesChange={onZoneChange}
+                      clearZoneLabel={t('vacuum_map.clear_zone')}
+                    />
+                  ) : (
+                    <SpotOverlay
+                      spots={spots}
+                      onSpotsChange={onSpotsChange}
+                      clearAllLabel={t('vacuum_map.clear_spots')}
+                      removeSpotLabel={t('vacuum_map.remove_spot')}
+                    />
+                  )}
+                </div>
               )}
             </div>
           </TransformComponent>

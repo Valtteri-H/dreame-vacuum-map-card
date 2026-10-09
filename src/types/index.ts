@@ -6,8 +6,4 @@ export type {
   ServiceCallData,
   SelectOptionData,
   SetValueData,
-  VacuumCleanSegmentData,
-  RoomCleaningConfig,
-  CustomizeCleaningState,
-  PersistedCustomizeConfig,
 } from './vacuum';

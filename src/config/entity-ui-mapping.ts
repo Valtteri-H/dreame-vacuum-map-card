@@ -26,8 +26,10 @@ export interface EntityDefinition {
   platform: EntityPlatform;
   labelKey: string;
   descriptionKey?: string;
-  /** Parent entity that must be enabled for this to show */
+  /** Parent switch that gates this row; shown while the parent is on */
   parentKey?: string;
+  /** Show this row while the parent switch is off instead */
+  parentOff?: boolean;
   /** For select entities: use segmented control instead of dropdown */
   useSegmentedControl?: boolean;
   /** For number entities: min/max/step overrides */
@@ -36,6 +38,8 @@ export interface EntityDefinition {
   step?: number;
   /** Custom render hint */
   renderHint?: 'slider' | 'brightness' | 'volume' | 'consumable';
+  /** For buttons: press only on a second, confirming tap */
+  confirm?: boolean;
 }
 
 // Section definition
@@ -375,7 +379,8 @@ export const AI_DETECTION_SECTION: SectionDefinition = {
       'settings.ai_detection.camera_light_brightness_desc',
       {
         renderHint: 'brightness',
-        parentKey: 'camera_light_brightness_auto', // Show only when auto is OFF (inverted logic handled in component)
+        parentKey: 'camera_light_brightness_auto',
+        parentOff: true,
       }
     ),
   ],
@@ -388,116 +393,10 @@ export const MAP_SETTINGS_SECTION: SectionDefinition = {
   entities: [
     sw('MULTI_FLOOR_MAP', 'settings.map.multi_floor', 'settings.map.multi_floor_desc'),
     sel('MAP_ROTATION', 'settings.map.rotation', 'settings.map.rotation_desc'),
-    btn('START_MAPPING', 'settings.map.start_mapping'),
-    btn('START_FAST_MAPPING', 'settings.map.start_fast_mapping'),
+    btn('START_MAPPING', 'settings.map.start_mapping', undefined, { confirm: true }),
+    btn('START_FAST_MAPPING', 'settings.map.start_fast_mapping', undefined, { confirm: true }),
   ],
 };
-
-// Consumables use a different rendering approach (attributes, not entities)
-export const CONSUMABLES_CONFIG = [
-  {
-    key: 'main_brush',
-    labelKey: 'settings.consumables.main_brush',
-    percentKey: DREAME_SENSORS.MAIN_BRUSH_LEFT.key,
-    hoursKey: DREAME_SENSORS.MAIN_BRUSH_TIME_LEFT.key,
-  },
-  {
-    key: 'side_brush',
-    labelKey: 'settings.consumables.side_brush',
-    percentKey: DREAME_SENSORS.SIDE_BRUSH_LEFT.key,
-    hoursKey: DREAME_SENSORS.SIDE_BRUSH_TIME_LEFT.key,
-  },
-  {
-    key: 'filter',
-    labelKey: 'settings.consumables.filter',
-    percentKey: DREAME_SENSORS.FILTER_LEFT.key,
-    hoursKey: DREAME_SENSORS.FILTER_TIME_LEFT.key,
-  },
-  {
-    key: 'sensor',
-    labelKey: 'settings.consumables.sensor',
-    percentKey: DREAME_SENSORS.SENSOR_DIRTY_LEFT.key,
-    hoursKey: DREAME_SENSORS.SENSOR_DIRTY_TIME_LEFT.key,
-  },
-  {
-    key: 'mop_pad',
-    labelKey: 'settings.consumables.mop_pad',
-    percentKey: DREAME_SENSORS.MOP_PAD_LEFT.key,
-    hoursKey: DREAME_SENSORS.MOP_PAD_TIME_LEFT.key,
-  },
-  {
-    key: 'silver_ion',
-    labelKey: 'settings.consumables.silver_ion',
-    percentKey: DREAME_SENSORS.SILVER_ION_LEFT.key,
-    hoursKey: DREAME_SENSORS.SILVER_ION_TIME_LEFT.key,
-  },
-  {
-    key: 'detergent',
-    labelKey: 'settings.consumables.detergent',
-    percentKey: DREAME_SENSORS.DETERGENT_LEFT.key,
-    hoursKey: DREAME_SENSORS.DETERGENT_TIME_LEFT.key,
-  },
-  {
-    key: 'squeegee',
-    labelKey: 'settings.consumables.squeegee',
-    percentKey: DREAME_SENSORS.SQUEEGEE_LEFT.key,
-    hoursKey: DREAME_SENSORS.SQUEEGEE_TIME_LEFT.key,
-  },
-  {
-    key: 'tank_filter',
-    labelKey: 'settings.consumables.tank_filter',
-    percentKey: DREAME_SENSORS.TANK_FILTER_LEFT.key,
-    hoursKey: DREAME_SENSORS.TANK_FILTER_TIME_LEFT.key,
-  },
-  {
-    key: 'onboard_dirty_water_tank',
-    labelKey: 'settings.consumables.onboard_dirty_water_tank',
-    percentKey: DREAME_SENSORS.ONBOARD_DIRTY_WATER_TANK_LEFT.key,
-    hoursKey: DREAME_SENSORS.ONBOARD_DIRTY_WATER_TANK_TIME_LEFT.key,
-  },
-  {
-    key: 'dirty_water_channel',
-    labelKey: 'settings.consumables.dirty_water_channel',
-    percentKey: DREAME_SENSORS.DIRTY_WATER_CHANNEL_DIRTY_LEFT.key,
-    hoursKey: DREAME_SENSORS.DIRTY_WATER_CHANNEL_DIRTY_TIME_LEFT.key,
-  },
-  {
-    key: 'deodorizer',
-    labelKey: 'settings.consumables.deodorizer',
-    percentKey: DREAME_SENSORS.DEODORIZER_LEFT.key,
-    hoursKey: DREAME_SENSORS.DEODORIZER_TIME_LEFT.key,
-  },
-  {
-    key: 'wheel',
-    labelKey: 'settings.consumables.wheel',
-    percentKey: DREAME_SENSORS.WHEEL_DIRTY_LEFT.key,
-    hoursKey: DREAME_SENSORS.WHEEL_DIRTY_TIME_LEFT.key,
-  },
-  {
-    key: 'scale_inhibitor',
-    labelKey: 'settings.consumables.scale_inhibitor',
-    percentKey: DREAME_SENSORS.SCALE_INHIBITOR_LEFT.key,
-    hoursKey: DREAME_SENSORS.SCALE_INHIBITOR_TIME_LEFT.key,
-  },
-  {
-    key: 'fluffing_roller',
-    labelKey: 'settings.consumables.fluffing_roller',
-    percentKey: DREAME_SENSORS.FLUFFING_ROLLER_DIRTY_LEFT.key,
-    hoursKey: DREAME_SENSORS.FLUFFING_ROLLER_DIRTY_TIME_LEFT.key,
-  },
-  {
-    key: 'roller_mop_filter',
-    labelKey: 'settings.consumables.roller_mop_filter',
-    percentKey: DREAME_SENSORS.ROLLER_MOP_FILTER_DIRTY_LEFT.key,
-    hoursKey: DREAME_SENSORS.ROLLER_MOP_FILTER_DIRTY_TIME_LEFT.key,
-  },
-  {
-    key: 'water_outlet_filter',
-    labelKey: 'settings.consumables.water_outlet_filter',
-    percentKey: DREAME_SENSORS.WATER_OUTLET_FILTER_DIRTY_LEFT.key,
-    hoursKey: DREAME_SENSORS.WATER_OUTLET_FILTER_DIRTY_TIME_LEFT.key,
-  },
-] as const;
 
 // =============================================================================
 // ALL SECTIONS (ordered)

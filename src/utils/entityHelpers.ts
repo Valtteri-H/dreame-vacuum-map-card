@@ -1,38 +1,9 @@
-import type { HassEntity, HassConfig, RoomPosition, CleaningSelectionMode, Hass, Room } from '@/types/homeassistant';
+import type { HassEntity, CleaningSelectionMode, Hass } from '@/types/homeassistant';
 import { getAttr } from './typeGuards';
 import { resolveRoomName } from './roomParser';
 
 export function resolveMapEntityId(configuredMapEntity?: string, discoveredMapEntity?: string): string {
   return configuredMapEntity || discoveredMapEntity || '';
-}
-
-export function extractEntityData(entity: HassEntity | undefined, config: HassConfig, mapEntityId?: string) {
-  if (!entity) {
-    return null;
-  }
-
-  const deviceName = config.title || entity.attributes?.friendly_name || 'Dreame Vacuum';
-
-  // Vacuum entity rooms are structured as Record<mapName, Room[]>
-  const selectedMap = entity.attributes?.selected_map || '';
-  const entityRooms = entity.attributes?.rooms?.[selectedMap];
-
-  // Handle rooms array from vacuum entity
-  const rooms: RoomPosition[] = Array.isArray(entityRooms)
-    ? entityRooms.map((room: Room) => ({
-        id: room.id,
-        name: room.name,
-        x: 50,
-        y: 50,
-        icon: room.icon,
-      }))
-    : [];
-
-  return {
-    deviceName,
-    mapEntityId,
-    rooms,
-  };
 }
 
 export function getEffectiveCleaningMode(

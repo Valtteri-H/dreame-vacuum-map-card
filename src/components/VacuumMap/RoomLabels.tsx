@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import type { Room } from '@/types/homeassistant';
 import type { MapTransform } from '@/utils/mapTransform';
-import './RoomLabels.scss';
 
 interface RoomLabelsProps {
   rooms: Room[];

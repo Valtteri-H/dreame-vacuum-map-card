@@ -4,7 +4,6 @@ import { useAreaUnit, useEntity, useMachineState } from '@/contexts';
 import { resolveStatusLabel } from '@/i18n';
 import { useIntegrationTranslations } from '@/hooks/useEntityLabel';
 import { getAttr, isNumber } from '@/utils';
-import './Header.scss';
 import {
   BATTERY_EMPTY_ICON_SVG,
   BATTERY_LOW_ICON_SVG,

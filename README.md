@@ -34,7 +34,7 @@ A modern, beautiful Home Assistant Lovelace card for controlling Dreame robot va
 
 ### Via [HACS](https://hacs.xyz/)
 
-<a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=noambergauz&repository=dreame-vacuum-map-card&category=integration" target="_blank"><img src="https://my.home-assistant.io/badges/hacs_repository.svg" alt="Open your Home Assistant instance and open a repository inside the Home Assistant Community Store." /></a>
+<a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=noambergauz&repository=dreame-vacuum-map-card&category=plugin" target="_blank"><img src="https://my.home-assistant.io/badges/hacs_repository.svg" alt="Open your Home Assistant instance and open a repository inside the Home Assistant Community Store." /></a>
 
 ### Manual:
 
@@ -73,7 +73,7 @@ map_overlays: # Experimental Optional, list of overlays to show on the map
   - room_labels # Show room names
   - vacuum # Show vacuum position marker
   - charger # Show charger position marker
-map_height: 520px # Optional, cap the map height (any CSS length). The map is scaled to fit, never cropped.
+map_height: 520px # Optional, cap the map height (any CSS length, or a number of pixels). The map is scaled to fit, never cropped.
 room_label_scale: 0.6 # Optional, 1 = default label size. Useful when the labels cover the rooms.
 room_names: # Optional, override the room names shown by the card
   1: Bedroom # Key: segment id from the map camera's `rooms` attribute …

@@ -88,28 +88,3 @@ export interface SelectOptionData extends ServiceCallData {
 export interface SetValueData extends ServiceCallData {
   value: number;
 }
-
-export interface VacuumCleanSegmentData extends ServiceCallData {
-  segments: number[];
-}
-
-// Per-room cleaning configuration for Customize mode
-export interface RoomCleaningConfig {
-  roomId: number;
-  cleaningMode: number; // 0=Vacuum, 1=Mop, 2=Vac & Mop
-  suctionLevel: number; // 0-3 (Quiet, Standard, Strong, Turbo)
-  mopWetness: number; // 1-3 (Slightly dry, Standard, Wet)
-  cycles: number; // 1-3
-}
-
-// Customize cleaning state
-export interface CustomizeCleaningState {
-  enabled: boolean;
-  roomConfigs: Map<number, RoomCleaningConfig>;
-}
-
-// Persisted customize config structure
-export interface PersistedCustomizeConfig {
-  version: number;
-  rooms: Record<number, Omit<RoomCleaningConfig, 'roomId'>>;
-}

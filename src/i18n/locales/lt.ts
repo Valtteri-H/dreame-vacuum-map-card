@@ -10,6 +10,7 @@ export const lt: Translation = {
     save: 'Išsaugoti',
     apply: 'Taikyti',
     reset: 'Atstatyti',
+    confirm_tap: 'Bakstelėkite dar kartą, kad patvirtintumėte',
   },
 
   // Room Selector
@@ -29,6 +30,7 @@ export const lt: Translation = {
     diagnostic_no_camera: 'Trūksta žemėlapio kameros',
     diagnostic_no_rooms: 'Šiame žemėlapyje nėra kambarių',
     diagnostic_bad_calibration: 'Trūksta žemėlapio kalibravimo',
+    diagnostic_image_failed: 'Nepavyko įkelti žemėlapio vaizdo',
     looking_for: 'Ieškoma: {{entity}}',
     room_overlay: 'Spustelk ant kambarių numerių, kad pasirinktum juos valymui',
     zone_overlay_create: 'Spustelk ant žemėlapio, kad pridėtum valymo zoną',
@@ -253,6 +255,7 @@ export const lt: Translation = {
     service_call_failed: 'Nepavyko išsiųsti komandos siurbliui',
     map_transform_unavailable: 'Žemėlapio koordinatės nepasiekiamos. Zonų valymas nebuvo pradėtas.',
     entity_unavailable: 'Siurblys nepasiekiamas',
+    entity_discovery_failed: 'Nepavyko įkelti šio siurblio objektų iš Home Assistant. Kai kurie valdikliai paslėpti.',
   },
 
   // Settings Panel

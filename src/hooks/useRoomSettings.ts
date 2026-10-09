@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Hass, HassEntity } from '@/types/homeassistant';
-import { DREAME_SEGMENT_NUMBERS, DREAME_SEGMENT_SELECTS, STORAGE_KEY } from '@/constants';
+import { DREAME_SEGMENT_NUMBERS, DREAME_SEGMENT_SELECTS, STORAGE_KEY, vacuumStorageKey } from '@/constants';
 import { useDeviceEntities } from '@/contexts/useVacuumCard';
 import { isSelectPlaceholder, publishedOptionList, sameStringList } from '@/utils/selectDisplay';
 import { logger } from '@/utils/logger';
@@ -51,11 +51,11 @@ function isRoomSelectStore(value: unknown): value is RoomSelectStore {
   );
 }
 
-export function readRoomSelectStore(storage: Pick<Storage, 'getItem'> = localStorage): RoomSelectStore {
-  const raw = storage.getItem(STORAGE_KEY.ROOM_SELECTS);
-  if (!raw) return EMPTY_STORE;
+export function readRoomSelectStore(storageKey: string, storage?: Pick<Storage, 'getItem'>): RoomSelectStore {
   let parsed: unknown;
   try {
+    const raw = (storage ?? localStorage).getItem(storageKey);
+    if (!raw) return EMPTY_STORE;
     parsed = JSON.parse(raw);
   } catch {
     return EMPTY_STORE;
@@ -63,8 +63,16 @@ export function readRoomSelectStore(storage: Pick<Storage, 'getItem'> = localSto
   return isRoomSelectStore(parsed) ? parsed : EMPTY_STORE;
 }
 
-export function writeRoomSelectStore(store: RoomSelectStore, storage: Pick<Storage, 'setItem'> = localStorage): void {
-  storage.setItem(STORAGE_KEY.ROOM_SELECTS, JSON.stringify(store));
+export function writeRoomSelectStore(
+  storageKey: string,
+  store: RoomSelectStore,
+  storage?: Pick<Storage, 'setItem'>
+): void {
+  try {
+    (storage ?? localStorage).setItem(storageKey, JSON.stringify(store));
+  } catch {
+    // localStorage not available
+  }
 }
 
 export function rememberPair(pairs: readonly ObservedPair[], code: number, option: string): readonly ObservedPair[] {
@@ -143,6 +151,7 @@ export interface RoomSetting {
 
 interface UseRoomSettingsOptions {
   hass: Hass;
+  vacuumEntityId: string;
   rooms: Array<{ id: number; name: string }>;
 }
 
@@ -180,9 +189,10 @@ function observeRoom(
   return { readings: observed, store: { version: 1, rooms: { ...store.rooms, [roomKey]: nextRoom } } };
 }
 
-export function useRoomSettings({ hass, rooms }: UseRoomSettingsOptions): UseRoomSettingsReturn {
+export function useRoomSettings({ hass, vacuumEntityId, rooms }: UseRoomSettingsOptions): UseRoomSettingsReturn {
   const { getRoom } = useDeviceEntities();
-  const [store, setStore] = useState(readRoomSelectStore);
+  const storageKey = vacuumStorageKey(STORAGE_KEY.ROOM_SELECTS, vacuumEntityId);
+  const [store, setStore] = useState(() => readRoomSelectStore(storageKey));
   const roomEntityIds = useMemo(() => {
     return rooms.map((room) => ({
       roomId: room.id,
@@ -257,8 +267,8 @@ export function useRoomSettings({ hass, rooms }: UseRoomSettingsOptions): UseRoo
   }
 
   useEffect(() => {
-    writeRoomSelectStore(store);
-  }, [store]);
+    writeRoomSelectStore(storageKey, store);
+  }, [storageKey, store]);
 
   // Set suction level for a room
   const setSuctionLevel = useCallback(

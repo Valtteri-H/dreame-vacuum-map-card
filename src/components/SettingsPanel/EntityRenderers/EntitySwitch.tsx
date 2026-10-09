@@ -4,7 +4,6 @@ import { useTranslation, getEntityState } from '@/hooks';
 import { useEntityLabel } from '@/hooks/useEntityLabel';
 import { useDeviceEntities, useHass } from '@/contexts';
 import type { EntityDefinition } from '@/config/entity-ui-mapping';
-import './EntityRenderers.scss';
 
 interface EntitySwitchProps {
   definition: EntityDefinition;

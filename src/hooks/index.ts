@@ -11,6 +11,7 @@ export { useToast } from './useToast';
 export { useTranslation } from './useTranslation';
 export { useButtonConfig } from './useButtonConfig';
 export { useRoomSettings } from './useRoomSettings';
+export { useConfirmTap } from './useConfirmTap';
 export { getEntityState, readSelectEntity } from './useEntityState';
 export { usePublishedSelect } from './usePublishedSelect';
 export { useVacuumMachineState } from './useVacuumMachineState';

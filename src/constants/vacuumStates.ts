@@ -71,8 +71,7 @@ export const STATE_TO_PHASE: Record<string, VacuumPhase> = {
   // Error state
   error: 'error',
 
-  // Other states
-  unknown: 'other',
+  // Other states. `unknown` is deliberately unmapped so the vacuum entity's state decides the phase.
   building: 'other',
   upgrading: 'other',
   remote_control: 'other',

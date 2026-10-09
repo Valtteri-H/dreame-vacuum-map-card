@@ -3,7 +3,6 @@ import { ChevronDown, Check, Map } from 'lucide-react';
 import { useTranslation, getEntityState } from '@/hooks';
 import { useEntity, useHass, useDeviceEntities } from '@/contexts';
 import { CARD_COMPANION_ENTITIES } from '@/constants';
-import './MapSelector.scss';
 
 interface MapInfo {
   id: number;

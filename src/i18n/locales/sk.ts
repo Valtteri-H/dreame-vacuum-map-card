@@ -10,6 +10,7 @@ export const sk: Translation = {
     save: 'Uložiť',
     apply: 'Použiť',
     reset: 'Obnoviť',
+    confirm_tap: 'Ťuknite znova na potvrdenie',
   },
 
   // Room Selector
@@ -29,6 +30,7 @@ export const sk: Translation = {
     diagnostic_no_camera: 'Chýba kamera mapy',
     diagnostic_no_rooms: 'Táto mapa nemá miestnosti',
     diagnostic_bad_calibration: 'Chýba kalibrácia mapy',
+    diagnostic_image_failed: 'Obrázok mapy sa nepodarilo načítať',
     looking_for: 'Hľadá sa: {{entity}}',
     room_overlay: 'Kliknutím na čísla miestností vyberte miestnosti na čistenie',
     zone_overlay_create: 'Kliknutím na mapu umiestnite čistiacu zónu',
@@ -252,6 +254,8 @@ export const sk: Translation = {
     service_call_failed: 'Nepodarilo sa odoslať príkaz vysávaču',
     map_transform_unavailable: 'Súradnice mapy nie sú dostupné. Čistenie zóny sa nespustilo.',
     entity_unavailable: 'Vysávač je nedostupný',
+    entity_discovery_failed:
+      'Entity vysávača sa nepodarilo načítať z Home Assistanta. Niektoré ovládacie prvky sú skryté.',
   },
 
   // Settings Panel

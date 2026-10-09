@@ -5,7 +5,6 @@ import { useMachineState } from '@/contexts';
 import { DockPopup } from '@/components/DockPopup';
 import { shouldOpenDockPopup } from '@/utils/dockPopup';
 import { CleanButton, PauseButton, ResumeButton, StopButton, DockButton } from './components';
-import './ActionButtons.scss';
 
 interface ActionButtonsProps {
   selectedMode: CleaningSelectionMode;

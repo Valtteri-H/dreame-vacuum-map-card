@@ -93,7 +93,7 @@ export const configSchema = z
     map_overlays: z.array(z.enum(['vacuum', 'charger', 'room_labels'])).optional(),
     room_names: z.record(z.string(), z.string()).optional(),
     room_label_scale: z.number().positive().optional(),
-    map_height: z.string().optional(),
+    map_height: z.union([z.string(), z.number().positive()]).optional(),
   })
   .passthrough();
 

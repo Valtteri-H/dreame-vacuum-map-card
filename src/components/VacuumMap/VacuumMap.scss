@@ -101,6 +101,11 @@
     box-shadow: 0 0.125rem 0.75rem var(--accent-shadow);
   }
 
+  // Positioned on the letterboxed picture, so zone and spot percentages are picture-relative
+  &__picture-frame {
+    position: absolute;
+  }
+
   // Zone container for click handling inside TransformComponent
   &__zone-container {
     position: absolute;

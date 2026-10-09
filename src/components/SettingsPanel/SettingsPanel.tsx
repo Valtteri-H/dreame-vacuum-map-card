@@ -1,6 +1,6 @@
 import { Modal, Accordion } from '@/components/common';
 import { useTranslation } from '@/hooks';
-import { useDeviceEntities } from '@/contexts';
+import { useDeviceEntities, useEntity } from '@/contexts';
 import { EntityRenderer } from './EntityRenderers';
 import {
   AI_DETECTION_SECTION,
@@ -18,6 +18,7 @@ import {
 import { AIDetectionSection } from './sections/AIDetectionSection';
 import { CarpetSettingsSection } from './sections/CarpetSettingsSection';
 import { ConsumablesSection } from './sections/ConsumablesSection';
+import { availableConsumables } from './sections/consumables';
 import { DeviceInfoSection } from './sections/DeviceInfoSection';
 import { DockSettingsSection } from './sections/DockSettingsSection';
 import { EdgeCornerSection } from './sections/EdgeCornerSection';
@@ -38,8 +39,6 @@ import {
   Map,
   Ellipsis,
 } from 'lucide-react';
-import './SettingsPanel.scss';
-
 interface SettingsPanelProps {
   opened: boolean;
   onClose: () => void;
@@ -53,6 +52,7 @@ type DeviceEntityLookup = (domain: string, translationKey: string) => string | u
 
 export function SettingsPanel({ opened, onClose }: SettingsPanelProps) {
   const { t } = useTranslation();
+  const entity = useEntity();
   const { status, get, extras } = useDeviceEntities();
   const entitiesReady = status === 'ready';
 
@@ -63,9 +63,11 @@ export function SettingsPanel({ opened, onClose }: SettingsPanelProps) {
 
         <div className="settings-panel__scroll-wrapper">
           <div className="settings-panel__sections">
-            <Accordion title={t('settings.consumables.title')} icon={<Gauge />}>
-              <ConsumablesSection />
-            </Accordion>
+            {availableConsumables(entity.attributes).length > 0 && (
+              <Accordion title={t('settings.consumables.title')} icon={<Gauge />}>
+                <ConsumablesSection />
+              </Accordion>
+            )}
 
             {entitiesReady &&
               (sectionHasEntities(QUICK_SETTINGS_SECTION, get) || sectionHasEntities(QUICK_ACTIONS_SECTION, get)) && (

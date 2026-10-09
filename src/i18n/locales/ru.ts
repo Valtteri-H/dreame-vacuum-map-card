@@ -10,6 +10,7 @@ export const ru: Translation = {
     save: 'Сохранить',
     apply: 'Применить',
     reset: 'Сбросить',
+    confirm_tap: 'Нажмите ещё раз для подтверждения',
   },
 
   // Room Selector
@@ -29,6 +30,7 @@ export const ru: Translation = {
     diagnostic_no_camera: 'Камера карты отсутствует',
     diagnostic_no_rooms: 'На этой карте нет комнат',
     diagnostic_bad_calibration: 'Калибровка карты отсутствует',
+    diagnostic_image_failed: 'Не удалось загрузить изображение карты',
     looking_for: 'Обнаружение: {{entity}}',
     room_overlay: 'Кликните на номера комнат чтобы выбрать комнаты для убокри',
     zone_overlay_create: 'Кликните на карту для добавления зоны уборки',
@@ -253,6 +255,8 @@ export const ru: Translation = {
     service_call_failed: 'Не удалось отправить команду пылесосу',
     map_transform_unavailable: 'Координаты карты недоступны. Зональная уборка не запущена.',
     entity_unavailable: 'Пылесос недоступен',
+    entity_discovery_failed:
+      'Не удалось загрузить сущности пылесоса из Home Assistant. Некоторые элементы управления скрыты.',
   },
 
   // Settings Panel

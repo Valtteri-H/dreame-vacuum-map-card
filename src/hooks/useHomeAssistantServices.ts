@@ -6,7 +6,7 @@
 import { useCallback } from 'react';
 import type { Hass } from '@/types/homeassistant';
 import { SERVICE_DOMAIN, SERVICE_ACTION } from '@/constants';
-import type { SelectOptionData, SetValueData, VacuumCleanSegmentData } from '@/types/vacuum';
+import type { SelectOptionData, SetValueData } from '@/types/vacuum';
 import { logger } from '@/utils/logger';
 
 export function useHomeAssistantServices(hass: Hass) {
@@ -51,39 +51,11 @@ export function useHomeAssistantServices(hass: Hass) {
     [callService]
   );
 
-  const startVacuum = useCallback(
-    (entityId: string) => {
-      logger.debug('HA', 'Vacuum Start:', entityId);
-      callService(SERVICE_DOMAIN.VACUUM, SERVICE_ACTION.START, { entity_id: entityId });
-    },
-    [callService]
-  );
-
-  const returnToBase = useCallback(
-    (entityId: string) => {
-      logger.debug('HA', 'Vacuum Return to base:', entityId);
-      callService(SERVICE_DOMAIN.VACUUM, SERVICE_ACTION.RETURN_TO_BASE, { entity_id: entityId });
-    },
-    [callService]
-  );
-
-  const cleanSegments = useCallback(
-    (entityId: string, segments: number[]) => {
-      logger.debug('HA', 'Vacuum Clean segments:', entityId, segments);
-      const data: VacuumCleanSegmentData = {
-        entity_id: entityId,
-        segments,
-      };
-      callService(SERVICE_DOMAIN.DREAME_VACUUM, SERVICE_ACTION.VACUUM_CLEAN_SEGMENT, data);
-    },
-    [callService]
-  );
-
   /**
    * Set vacuum fan speed (suction level).
    * This works during cleaning when the select entity is unavailable.
    * @param entityId - The vacuum entity ID (e.g., 'vacuum.dima')
-   * @param fanSpeed - The fan speed level (e.g., 'quiet', 'standard', 'strong', 'turbo')
+   * @param fanSpeed - An entry of the vacuum's `fan_speed_list`, sent unchanged
    */
   const setFanSpeed = useCallback(
     (entityId: string, fanSpeed: string) => {
@@ -100,9 +72,6 @@ export function useHomeAssistantServices(hass: Hass) {
     setSelectOption,
     setSwitch,
     setNumber,
-    startVacuum,
-    returnToBase,
-    cleanSegments,
     setFanSpeed,
     callService,
   };

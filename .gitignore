@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 .mypy_cache
+__pycache__/
 
 # Environment variables
 .env

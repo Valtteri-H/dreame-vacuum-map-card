@@ -59,5 +59,12 @@
     &:active {
       opacity: 0.8;
     }
+
+    &--armed,
+    &--armed:hover {
+      color: var(--text-primary-invert);
+      background: var(--error-color, #db4437);
+      border-color: var(--error-color, #db4437);
+    }
   }
 }

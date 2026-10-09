@@ -10,8 +10,76 @@ import styles from './styles.scss?inline';
 // Attach logger controls to window for dev tools access
 attachLoggerToWindow();
 
+const CARD_TAG = 'dreame-vacuum-map-card';
+
+interface ConfigFormField {
+  name: keyof HassConfig;
+  required?: boolean;
+  selector: Record<string, unknown>;
+}
+
+const CONFIG_FORM_SCHEMA: ConfigFormField[] = [
+  { name: 'entity', required: true, selector: { entity: { domain: 'vacuum' } } },
+  { name: 'map_entity', selector: { entity: { domain: 'camera' } } },
+  { name: 'title', selector: { text: {} } },
+  {
+    name: 'default_mode',
+    selector: {
+      select: {
+        mode: 'dropdown',
+        options: [
+          { value: 'all', label: 'All' },
+          { value: 'room', label: 'Rooms' },
+          { value: 'zone', label: 'Zone' },
+        ],
+      },
+    },
+  },
+  {
+    name: 'default_room_view',
+    selector: {
+      select: {
+        mode: 'dropdown',
+        options: [
+          { value: 'map', label: 'Map' },
+          { value: 'list', label: 'List' },
+        ],
+      },
+    },
+  },
+  {
+    name: 'map_overlays',
+    selector: {
+      select: {
+        multiple: true,
+        options: [
+          { value: 'vacuum', label: 'Vacuum position' },
+          { value: 'charger', label: 'Charger' },
+          { value: 'room_labels', label: 'Room labels' },
+        ],
+      },
+    },
+  },
+  { name: 'room_label_scale', selector: { number: { min: 0.1, max: 3, step: 0.1, mode: 'box' } } },
+  { name: 'map_height', selector: { text: {} } },
+  { name: 'language', selector: { text: {} } },
+];
+
+const CONFIG_FORM_LABELS: Partial<Record<keyof HassConfig, string>> = {
+  entity: 'Vacuum',
+  map_entity: 'Map camera (found automatically when empty)',
+  title: 'Title',
+  default_mode: 'Default cleaning mode',
+  default_room_view: 'Default room view',
+  map_overlays: 'Map overlays',
+  room_label_scale: 'Room label scale',
+  map_height: 'Map height (CSS length or pixels)',
+  language: 'Language (auto follows Home Assistant)',
+};
+
 class DreameVacuumMapCard extends HTMLElement {
   private _root: ReactDOM.Root | null = null;
+  private _unmountTimer: number | undefined;
   private _hass?: Hass;
   private _config?: HassConfig;
 
@@ -46,8 +114,21 @@ class DreameVacuumMapCard extends HTMLElement {
     this.render();
   }
 
+  connectedCallback() {
+    window.clearTimeout(this._unmountTimer);
+    this.render();
+  }
+
+  disconnectedCallback() {
+    // Masonry views move a card by disconnecting and reconnecting it in the same task; that must not reset it.
+    this._unmountTimer = window.setTimeout(() => {
+      this._root?.unmount();
+      this._root = null;
+    });
+  }
+
   private render() {
-    if (!this._hass || !this._config || !this.shadowRoot) return;
+    if (!this._hass || !this._config || !this.shadowRoot || !this.isConnected) return;
 
     let container = this.shadowRoot.querySelector('#react-root') as HTMLElement;
     if (!container) {
@@ -63,7 +144,7 @@ class DreameVacuumMapCard extends HTMLElement {
     this._root.render(
       <React.StrictMode>
         <ErrorBoundary>
-          <DreameVacuumCard hass={this._hass} config={this._config} />
+          <DreameVacuumCard key={this._config.entity} hass={this._hass} config={this._config} />
         </ErrorBoundary>
       </React.StrictMode>
     );
@@ -73,16 +154,26 @@ class DreameVacuumMapCard extends HTMLElement {
     return 4;
   }
 
-  static getStubConfig() {
+  static getStubConfig(hass?: Hass) {
+    const vacuum = Object.keys(hass?.states ?? {}).find((entityId) => entityId.startsWith('vacuum.'));
     return {
-      type: 'custom:dreame-vacuum-map-card',
-      entity: 'vacuum.dreame_vacuum',
+      type: `custom:${CARD_TAG}`,
+      entity: vacuum ?? 'vacuum.dreame_vacuum',
       title: 'Dreame Vacuum',
+    };
+  }
+
+  static getConfigForm() {
+    return {
+      schema: CONFIG_FORM_SCHEMA,
+      computeLabel: (field: ConfigFormField) => CONFIG_FORM_LABELS[field.name],
     };
   }
 }
 
-customElements.define('dreame-vacuum-map-card', DreameVacuumMapCard);
+if (!customElements.get(CARD_TAG)) {
+  customElements.define(CARD_TAG, DreameVacuumMapCard);
+}
 
 declare global {
   interface Window {
@@ -96,11 +187,13 @@ declare global {
 
 // Register card with Home Assistant custom cards list
 window.customCards = window.customCards || [];
-window.customCards.push({
-  type: 'dreame-vacuum-map-card',
-  name: 'Dreame Vacuum Map Card',
-  description: 'Custom vacuum map card for Dreame vacuum cleaners',
-});
+if (!window.customCards.some((card) => card.type === CARD_TAG)) {
+  window.customCards.push({
+    type: CARD_TAG,
+    name: 'Dreame Vacuum Map Card',
+    description: 'Custom vacuum map card for Dreame vacuum cleaners',
+  });
+}
 
 logger.info('Dreame Vacuum Map Card (React) loaded');
 

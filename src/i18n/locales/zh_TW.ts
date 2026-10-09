@@ -10,6 +10,7 @@ export const zh_TW: Translation = {
     save: '儲存',
     apply: '套用',
     reset: '重設',
+    confirm_tap: '再次點擊以確認',
   },
 
   // Room Selector (房間選擇器)
@@ -29,6 +30,7 @@ export const zh_TW: Translation = {
     diagnostic_no_camera: '缺少地圖攝影機',
     diagnostic_no_rooms: '此地圖沒有房間',
     diagnostic_bad_calibration: '缺少地圖校正',
+    diagnostic_image_failed: '地圖圖片載入失敗',
     looking_for: '正在尋找：{{entity}}',
     room_overlay: '請點選要清潔的房間',
     zone_overlay_create: '點擊地圖以新增清潔區域',
@@ -252,6 +254,7 @@ export const zh_TW: Translation = {
     service_call_failed: '傳送指令至掃地機器人失敗',
     map_transform_unavailable: '地圖座標無法使用，未啟動區域清潔。',
     entity_unavailable: '掃地機器人無法使用',
+    entity_discovery_failed: '無法從 Home Assistant 載入此掃地機器人的實體，部分控制項已隱藏。',
   },
 
   // Settings Panel (設定面板)

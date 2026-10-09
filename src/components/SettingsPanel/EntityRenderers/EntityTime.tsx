@@ -3,7 +3,8 @@ import { useTranslation, getEntityState } from '@/hooks';
 import { useEntityLabel } from '@/hooks/useEntityLabel';
 import { useDeviceEntities, useHass } from '@/contexts';
 import type { EntityDefinition } from '@/config/entity-ui-mapping';
-import './EntityRenderers.scss';
+
+const TIME_PATTERN = /^\d{2}:\d{2}/;
 
 interface EntityTimeProps {
   definition: EntityDefinition;
@@ -18,7 +19,7 @@ export function EntityTime({ definition, isChild = false, label }: EntityTimePro
   const { get } = useDeviceEntities();
   const entityId = get(definition.platform, definition.key);
   const timeState = getEntityState(hass, entityId);
-  const timeValue = timeState.state ? timeState.state.substring(0, 5) : '00:00';
+  const timeValue = timeState.state?.match(TIME_PATTERN)?.[0] ?? '';
 
   const handleChange = useCallback(
     (value: string) => {

@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import type { VacuumPosition } from '@/types/homeassistant';
 import type { MapTransform } from '@/utils/mapTransform';
-import './VacuumPositionMarker.scss';
 
 // MDI robot-vacuum icon path (viewBox 0 0 24 24)
 const ROBOT_VACUUM_PATH =

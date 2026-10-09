@@ -10,6 +10,7 @@ export const uk: Translation = {
     save: 'Зберегти',
     apply: 'Застосувати',
     reset: 'Скинути',
+    confirm_tap: 'Натисніть ще раз для підтвердження',
   },
 
   // Вибір кімнат
@@ -29,6 +30,7 @@ export const uk: Translation = {
     diagnostic_no_camera: 'Камера карти відсутня',
     diagnostic_no_rooms: 'На цій карті немає кімнат',
     diagnostic_bad_calibration: 'Калібрування карти відсутнє',
+    diagnostic_image_failed: 'Не вдалося завантажити зображення карти',
     looking_for: 'Пошук: {{entity}}',
     room_overlay: 'Натисніть номер кімнати, щоб вибрати її для прибирання',
     zone_overlay_create: 'Натисніть на карту, щоб додати зону прибирання',
@@ -252,6 +254,8 @@ export const uk: Translation = {
     service_call_failed: 'Не вдалося надіслати команду роботу',
     map_transform_unavailable: 'Координати карти недоступні. Прибирання зони не розпочато.',
     entity_unavailable: 'Робот-пилосос недоступний',
+    entity_discovery_failed:
+      'Не вдалося завантажити сутності пилососа з Home Assistant. Деякі елементи керування приховано.',
   },
 
   // Панель налаштувань

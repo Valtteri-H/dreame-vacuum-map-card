@@ -86,10 +86,17 @@ export const UI = {
 // LocalStorage keys
 export const STORAGE_KEY = {
   MAP_LOCKED: 'dreame-vacuum-map-locked',
-  CUSTOMIZE_CONFIG: 'dreame-vacuum-card:customize_config',
   AREA_SELECTION_MODE: 'dreame-vacuum-card:area_selection_mode',
   ROOM_SELECTS: 'dreame-vacuum-card:room_selects',
+  REPEAT_COUNT: 'dreame-vacuum-card:repeat_count',
 } as const;
+
+export type StorageKey = (typeof STORAGE_KEY)[keyof typeof STORAGE_KEY];
+
+/** Each vacuum keeps its own entry, so cards for different vacuums never read or overwrite each other's state. */
+export function vacuumStorageKey(key: StorageKey, vacuumEntityId: string): string {
+  return `${key}:${vacuumEntityId}`;
+}
 
 // Customize cleaning mode constants
 export const CUSTOMIZE_CLEANING_MODE = {

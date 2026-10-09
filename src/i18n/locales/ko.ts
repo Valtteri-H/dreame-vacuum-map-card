@@ -10,6 +10,7 @@ export const ko: Translation = {
     save: '저장',
     apply: '적용',
     reset: '초기화',
+    confirm_tap: '확인하려면 다시 탭하세요',
   },
 
   // Room Selector
@@ -29,6 +30,7 @@ export const ko: Translation = {
     diagnostic_no_camera: '지도 카메라가 없습니다',
     diagnostic_no_rooms: '이 지도에는 방이 없습니다',
     diagnostic_bad_calibration: '지도 보정 정보가 없습니다',
+    diagnostic_image_failed: '지도 이미지를 불러오지 못했습니다',
     looking_for: '검색 중: {{entity}}',
     room_overlay: '방 번호를 클릭하여 청소할 방을 선택하세요',
     zone_overlay_create: '맵을 클릭하여 청소 구역을 지정하세요',
@@ -252,6 +254,7 @@ export const ko: Translation = {
     service_call_failed: '청소기에 명령을 보내지 못했습니다',
     map_transform_unavailable: '지도 좌표를 사용할 수 없어 구역 청소를 시작하지 않았습니다.',
     entity_unavailable: '청소기를 사용할 수 없습니다',
+    entity_discovery_failed: 'Home Assistant에서 이 청소기의 엔티티를 불러올 수 없습니다. 일부 컨트롤이 숨겨집니다.',
   },
 
   // Settings Panel

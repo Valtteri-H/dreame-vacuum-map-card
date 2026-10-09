@@ -1,5 +1,4 @@
 import { START_CLEANING_ICON_SVG } from '@/constants/icons';
-import '../ActionButtons.scss';
 
 interface CleanButtonProps {
   onClick: () => void;

@@ -10,6 +10,7 @@ export const hu_HU: Translation = {
     save: 'Mentés',
     apply: 'Alkalmaz',
     reset: 'Visszaállítás',
+    confirm_tap: 'Koppints újra a megerősítéshez',
   },
 
   // Room Selector
@@ -29,6 +30,7 @@ export const hu_HU: Translation = {
     diagnostic_no_camera: 'A térkép kamerája hiányzik',
     diagnostic_no_rooms: 'Ezen a térképen nincsenek helyiségek',
     diagnostic_bad_calibration: 'A térkép kalibrációja hiányzik',
+    diagnostic_image_failed: 'A térkép képét nem sikerült betölteni',
     looking_for: 'Keresés: {{entity}}',
     room_overlay: 'Kattints a szobaszámokra a takarítandó helyiségek kijelöléséhez',
     zone_overlay_create: 'Kattints a térképre egy takarítási zóna elhelyezéséhez',
@@ -252,6 +254,8 @@ export const hu_HU: Translation = {
     service_call_failed: 'Nem sikerült elküldeni a parancsot a porszívónak',
     map_transform_unavailable: 'A térkép koordinátái nem érhetők el. A zónatakarítás nem indult el.',
     entity_unavailable: 'A porszívó nem elérhető',
+    entity_discovery_failed:
+      'Nem sikerült betölteni a porszívó entitásait a Home Assistantből. Néhány vezérlő el van rejtve.',
   },
 
   // Settings Panel

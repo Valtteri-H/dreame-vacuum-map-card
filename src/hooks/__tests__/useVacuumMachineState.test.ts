@@ -1,6 +1,23 @@
 import { describe, expect, it } from 'vitest';
 import { isRobotBusy } from '@/constants';
-import { deriveControls, resolveCleaningMode } from '../useVacuumMachineState';
+import { deriveControls, derivePhase, resolveCleaningMode } from '../useVacuumMachineState';
+
+describe('derivePhase', () => {
+  it('uses the state sensor when it reports a known state', () => {
+    expect(derivePhase('sweeping', 'docked')).toBe('cleaning');
+  });
+
+  it.each([
+    ['cleaning', 'cleaning'],
+    ['docked', 'idle'],
+  ] as const)('falls back to the vacuum state %s while the sensor is unknown', (vacuumState, phase) => {
+    expect(derivePhase('unknown', vacuumState)).toBe(phase);
+  });
+
+  it('falls back to the vacuum state while the sensor is unavailable', () => {
+    expect(derivePhase('unavailable', 'returning')).toBe('returning');
+  });
+});
 
 describe('isRobotBusy', () => {
   it('keeps room selection hidden through an active job', () => {

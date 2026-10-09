@@ -19,7 +19,7 @@ export function EntityRenderer({ definition, isChild = false, label }: EntityRen
 
   if (definition.parentKey) {
     const parentState = getEntityState(hass, get('switch', definition.parentKey));
-    if (!parentState.isOn) {
+    if (parentState.isOn === Boolean(definition.parentOff)) {
       return null;
     }
   }

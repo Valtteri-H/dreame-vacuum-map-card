@@ -1,7 +1,6 @@
 import { Component } from 'react';
 import type { ReactNode, ErrorInfo } from 'react';
 import { logger } from '@/utils/logger';
-import './ErrorBoundary.scss';
 
 interface ErrorBoundaryProps {
   children: ReactNode;

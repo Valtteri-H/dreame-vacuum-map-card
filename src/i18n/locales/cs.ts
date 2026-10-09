@@ -9,6 +9,7 @@ export const cs: Translation = {
     save: 'Uložit',
     apply: 'Použít',
     reset: 'Obnovit',
+    confirm_tap: 'Klepněte znovu pro potvrzení',
   },
 
   // Room Selector
@@ -28,6 +29,7 @@ export const cs: Translation = {
     diagnostic_no_camera: 'Chybí kamera mapy',
     diagnostic_no_rooms: 'Tato mapa nemá místnosti',
     diagnostic_bad_calibration: 'Chybí kalibrace mapy',
+    diagnostic_image_failed: 'Obrázek mapy se nepodařilo načíst',
     looking_for: 'Hledám: {{entity}}',
     room_overlay: 'Kliknutím na čísla místností vyberete místnosti k úklidu',
     zone_overlay_create: 'Kliknutím do mapy umístíte úklidovou zónu',
@@ -249,6 +251,8 @@ export const cs: Translation = {
     service_call_failed: 'Nepodařilo se odeslat příkaz vysavači',
     map_transform_unavailable: 'Souřadnice mapy nejsou dostupné. Úklid zóny nebyl spuštěn.',
     entity_unavailable: 'Vysavač není dostupný',
+    entity_discovery_failed:
+      'Entity vysavače se nepodařilo načíst z Home Assistantu. Některé ovládací prvky jsou skryté.',
   },
 
   // Settings Panel

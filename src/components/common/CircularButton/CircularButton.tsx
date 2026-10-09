@@ -1,5 +1,3 @@
-import './CircularButton.scss';
-
 interface CircularButtonProps {
   icon: React.ReactNode;
   label?: string;

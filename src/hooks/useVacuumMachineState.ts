@@ -57,7 +57,7 @@ export interface VacuumMachineState {
 /**
  * Derive phase from sensor state, with fallback to vacuum entity state
  */
-function derivePhase(sensorState: string | undefined, vacuumState: string | undefined): VacuumPhase {
+export function derivePhase(sensorState: string | undefined, vacuumState: string | undefined): VacuumPhase {
   if (sensorState && STATE_TO_PHASE[sensorState]) {
     return STATE_TO_PHASE[sensorState];
   }

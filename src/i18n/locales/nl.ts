@@ -10,6 +10,7 @@ export const nl: Translation = {
     save: 'Opslaan',
     apply: 'Toepassen',
     reset: 'Resetten',
+    confirm_tap: 'Tik nogmaals om te bevestigen',
   },
 
   // Kamer Kiezer
@@ -29,6 +30,7 @@ export const nl: Translation = {
     diagnostic_no_camera: 'Kaartcamera ontbreekt',
     diagnostic_no_rooms: 'Deze kaart heeft geen kamers',
     diagnostic_bad_calibration: 'Kaartkalibratie ontbreekt',
+    diagnostic_image_failed: 'De kaartafbeelding kon niet worden geladen',
     looking_for: 'Zoeken naar: {{entity}}',
     room_overlay: 'Klik op kamernummers om kamers te selecteren voor reiniging',
     zone_overlay_create: 'Klik op de kaart om een schoonmaakzone te plaatsen',
@@ -252,6 +254,8 @@ export const nl: Translation = {
     service_call_failed: 'Kan opdracht niet naar stofzuiger sturen',
     map_transform_unavailable: 'Kaartcoördinaten zijn niet beschikbaar. Zonereiniging is niet gestart.',
     entity_unavailable: 'Stofzuiger niet beschikbaar',
+    entity_discovery_failed:
+      'De entiteiten van deze stofzuiger konden niet uit Home Assistant worden geladen. Sommige bedieningselementen zijn verborgen.',
   },
 
   // Instellingenpaneel

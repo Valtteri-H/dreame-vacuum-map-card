@@ -21,6 +21,32 @@ export interface VacuumZone {
   y2: number;
 }
 
+export interface PictureRect {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+/**
+ * The area an `object-fit: contain` picture fills inside its box, centered by the default `object-position`.
+ * Zone and spot percentages are relative to this area, not to the box around it.
+ */
+export function containedRect(
+  boxWidth: number,
+  boxHeight: number,
+  naturalWidth: number,
+  naturalHeight: number
+): PictureRect | null {
+  if (![boxWidth, boxHeight, naturalWidth, naturalHeight].every((value) => Number.isFinite(value) && value > 0)) {
+    return null;
+  }
+  const scale = Math.min(boxWidth / naturalWidth, boxHeight / naturalHeight);
+  const width = naturalWidth * scale;
+  const height = naturalHeight * scale;
+  return { left: (boxWidth - width) / 2, top: (boxHeight - height) / 2, width, height };
+}
+
 export type ZoneConversionFailure = 'no_transform' | 'estimated_transform' | 'invalid_coordinates' | 'unsafe_zone';
 
 export type ZoneConvertResult = { ok: true; zone: VacuumZone } | { ok: false; reason: ZoneConversionFailure };

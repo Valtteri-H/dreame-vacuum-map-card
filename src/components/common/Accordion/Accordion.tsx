@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
 import { ChevronDown } from 'lucide-react';
-import './Accordion.scss';
 
 interface AccordionProps {
   title: string;

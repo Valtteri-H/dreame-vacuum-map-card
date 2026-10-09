@@ -10,6 +10,7 @@ export const de: Translation = {
     save: 'Speichern',
     apply: 'Anwenden',
     reset: 'Zurücksetzen',
+    confirm_tap: 'Zum Bestätigen erneut tippen',
   },
 
   // Room Selector
@@ -29,6 +30,7 @@ export const de: Translation = {
     diagnostic_no_camera: 'Kartenkamera fehlt',
     diagnostic_no_rooms: 'Diese Karte hat keine Räume',
     diagnostic_bad_calibration: 'Kartenkalibrierung fehlt',
+    diagnostic_image_failed: 'Das Kartenbild konnte nicht geladen werden',
     looking_for: 'Suche nach: {{entity}}',
     room_overlay: 'Klicken Sie auf Raumnummern, um Räume zum Reinigen auszuwählen',
     zone_overlay_create: 'Klicken Sie auf die Karte, um eine Reinigungszone zu platzieren',
@@ -255,6 +257,8 @@ export const de: Translation = {
     service_call_failed: 'Befehl konnte nicht an den Staubsauger gesendet werden',
     map_transform_unavailable: 'Kartenkoordinaten sind nicht verfügbar. Die Zonenreinigung wurde nicht gestartet.',
     entity_unavailable: 'Staubsauger nicht verfügbar',
+    entity_discovery_failed:
+      'Die Entitäten dieses Staubsaugers konnten nicht aus Home Assistant geladen werden. Einige Steuerelemente sind ausgeblendet.',
   },
 
   // Settings Panel

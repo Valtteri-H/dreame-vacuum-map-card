@@ -1,5 +1,3 @@
-import './Toggle.scss';
-
 interface ToggleProps {
   checked?: boolean;
   onChange?: (checked: boolean) => void;

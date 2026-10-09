@@ -1,4 +1,3 @@
-import './CleaningModeButton.scss';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useMachineState } from '@/contexts';
 import { SHORTCUTS_ICON_SVG, VACUUM_MOP_ICON_SVG, CUSTOMIZE_ICON_SVG } from '@/constants/icons';

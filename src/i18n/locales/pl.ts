@@ -10,6 +10,7 @@ export const pl: Translation = {
     save: 'Zapisz',
     apply: 'Zastosuj',
     reset: 'Resetuj',
+    confirm_tap: 'Dotknij ponownie, aby potwierdzić',
   },
 
   // Room Selector
@@ -29,6 +30,7 @@ export const pl: Translation = {
     diagnostic_no_camera: 'Brak kamery mapy',
     diagnostic_no_rooms: 'Ta mapa nie ma pomieszczeń',
     diagnostic_bad_calibration: 'Brak kalibracji mapy',
+    diagnostic_image_failed: 'Nie udało się wczytać obrazu mapy',
     looking_for: 'Szukanie: {{entity}}',
     room_overlay: 'Kliknij numery pokojów, aby wybrać je do sprzątania',
     zone_overlay_create: 'Kliknij na mapie, aby umieścić strefę sprzątania',
@@ -252,6 +254,8 @@ export const pl: Translation = {
     service_call_failed: 'Nie udało się wysłać polecenia do odkurzacza',
     map_transform_unavailable: 'Współrzędne mapy są niedostępne. Czyszczenie strefy nie zostało uruchomione.',
     entity_unavailable: 'Odkurzacz niedostępny',
+    entity_discovery_failed:
+      'Nie udało się wczytać encji tego odkurzacza z Home Assistant. Niektóre elementy sterujące są ukryte.',
   },
 
   // Settings Panel

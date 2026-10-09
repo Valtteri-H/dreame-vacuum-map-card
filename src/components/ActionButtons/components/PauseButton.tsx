@@ -1,5 +1,4 @@
 import { useTranslation } from '@/hooks';
-import '../ActionButtons.scss';
 import { PAUSE_CLEANING_ICON_SVG } from '@/constants/icons';
 
 interface PauseButtonProps {

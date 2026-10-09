@@ -10,6 +10,7 @@ export const zh: Translation = {
     save: '保存',
     apply: '应用',
     reset: '重置',
+    confirm_tap: '再次点击以确认',
   },
 
   // Room Selector (房间选择器)
@@ -29,6 +30,7 @@ export const zh: Translation = {
     diagnostic_no_camera: '缺少地图摄像头',
     diagnostic_no_rooms: '此地图没有房间',
     diagnostic_bad_calibration: '缺少地图校准',
+    diagnostic_image_failed: '地图图片加载失败',
     looking_for: '正在寻找：{{entity}}',
     room_overlay: '请选择需要清洁的房间',
     zone_overlay_create: '点击地图添加划区清洁区域',
@@ -252,6 +254,7 @@ export const zh: Translation = {
     service_call_failed: '发送指令到扫地机失败',
     map_transform_unavailable: '地图坐标不可用，未启动区域清扫。',
     entity_unavailable: '扫地机不可用',
+    entity_discovery_failed: '无法从 Home Assistant 加载此扫地机的实体，部分控件已隐藏。',
   },
 
   // Settings Panel (设置面板)

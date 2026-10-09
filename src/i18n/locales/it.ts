@@ -10,6 +10,7 @@ export const it: Translation = {
     save: 'Salva',
     apply: 'Applica',
     reset: 'Reimposta',
+    confirm_tap: 'Tocca di nuovo per confermare',
   },
 
   // Room Selector
@@ -29,6 +30,7 @@ export const it: Translation = {
     diagnostic_no_camera: 'Fotocamera della mappa mancante',
     diagnostic_no_rooms: 'Questa mappa non ha stanze',
     diagnostic_bad_calibration: 'Calibrazione della mappa mancante',
+    diagnostic_image_failed: "Impossibile caricare l'immagine della mappa",
     looking_for: 'Ricerca di: {{entity}}',
     room_overlay: 'Clicca sui numeri delle stanze per selezionarle per la pulizia',
     zone_overlay_create: 'Clicca sulla mappa per posizionare una zona di pulizia',
@@ -253,6 +255,8 @@ export const it: Translation = {
     service_call_failed: "Impossibile inviare il comando all'aspirapolvere",
     map_transform_unavailable: 'Coordinate della mappa non disponibili. La pulizia della zona non è stata avviata.',
     entity_unavailable: 'Aspirapolvere non disponibile',
+    entity_discovery_failed:
+      'Impossibile caricare le entità di questo aspirapolvere da Home Assistant. Alcuni controlli sono nascosti.',
   },
 
   // Settings Panel

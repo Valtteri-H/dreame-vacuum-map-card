@@ -1,5 +1,3 @@
-import './Toast.scss';
-
 interface ToastProps {
   message: string;
   onClose: () => void;

@@ -3,7 +3,6 @@ import { ChevronDown } from 'lucide-react';
 import type { AreaSelectionMode, CleaningSelectionMode } from '@/types/homeassistant';
 import { useTranslation } from '@/hooks';
 import { useMachineState } from '@/contexts';
-import './ModeTabs.scss';
 
 interface ModeTabsProps {
   selectedMode: CleaningSelectionMode;

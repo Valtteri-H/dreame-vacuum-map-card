@@ -15,6 +15,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Check tag matches package.json version
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          if [ "${GITHUB_REF_NAME}" != "v${PACKAGE_VERSION}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match package.json version ${PACKAGE_VERSION}"
+            exit 1
+          fi
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -34,8 +42,14 @@ jobs:
       - name: Lint SCSS
         run: npm run lint:scss
 
+      - name: Validate translations
+        run: npm run validate:translations
+
+      - name: Run unit tests
+        run: npm run test:run
+
       - name: TypeScript type check
-        run: npx tsc --noEmit
+        run: npx tsc --noEmit -p tsconfig.app.json
       
       - name: Build project
         run: npm run build

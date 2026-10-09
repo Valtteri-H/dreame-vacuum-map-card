@@ -65,8 +65,8 @@ export interface HassConfig {
   room_names?: Record<string, string>;
   /** Scale factor for the room labels drawn on the map (1 = unchanged). */
   room_label_scale?: number;
-  /** Maximum height of the map area as a CSS length, e.g. '520px' or '60vh'. */
-  map_height?: string;
+  /** Maximum height of the map area as a CSS length, e.g. '520px' or '60vh', or a number of pixels. */
+  map_height?: string | number;
 }
 
 export interface HassUnitSystem {
@@ -107,15 +107,6 @@ export type StopAction = 'stop' | 'stop_and_dock';
 export interface ButtonConfig {
   type: 'stop'; // Extensible for future button types
   action: StopAction;
-}
-
-export interface RoomPosition {
-  id: number;
-  name: string;
-  x: number;
-  y: number;
-  icon?: string;
-  visibility?: string;
 }
 
 export interface Zone {

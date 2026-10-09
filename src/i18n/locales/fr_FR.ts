@@ -10,6 +10,7 @@ export const fr_FR: Translation = {
     save: 'Enregistrer',
     apply: 'Appliquer',
     reset: 'Réinitialiser',
+    confirm_tap: 'Touchez à nouveau pour confirmer',
   },
 
   // Room selector
@@ -29,6 +30,7 @@ export const fr_FR: Translation = {
     diagnostic_no_camera: 'Caméra de la carte manquante',
     diagnostic_no_rooms: 'Cette carte n’a pas de pièces',
     diagnostic_bad_calibration: 'Calibrage de la carte manquant',
+    diagnostic_image_failed: "L'image de la carte n'a pas pu être chargée",
     looking_for: 'Recherche de : {{entity}}',
     room_overlay: 'Cliquez sur les numéros pour sélectionner les pièces à nettoyer',
     zone_overlay_create: 'Cliquez sur la carte pour placer une zone de nettoyage',
@@ -252,6 +254,8 @@ export const fr_FR: Translation = {
     service_call_failed: "Échec de l'envoi de la commande à l'aspirateur",
     map_transform_unavailable: "Les coordonnées de la carte sont indisponibles. Le nettoyage de zone n'a pas démarré.",
     entity_unavailable: 'Aspirateur non disponible',
+    entity_discovery_failed:
+      'Impossible de charger les entités de cet aspirateur depuis Home Assistant. Certaines commandes sont masquées.',
   },
 
   // Settings panel

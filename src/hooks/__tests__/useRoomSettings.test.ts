@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { STORAGE_KEY, vacuumStorageKey } from '@/constants';
 import {
   readRoomSelect,
   readRoomSelectStore,
@@ -68,19 +69,61 @@ describe('readRoomSelect', () => {
 });
 
 describe('readRoomSelectStore', () => {
-  it('restores pairs this browser already saw', () => {
+  const kitchenKey = vacuumStorageKey(STORAGE_KEY.ROOM_SELECTS, 'vacuum.kitchen');
+  const upstairsKey = vacuumStorageKey(STORAGE_KEY.ROOM_SELECTS, 'vacuum.upstairs');
+  const emptyStore: RoomSelectStore = { version: 1, rooms: {} };
+
+  function memoryStorage() {
     const memory = new Map<string, string>();
-    const storage = {
+    return {
       getItem: (key: string) => memory.get(key) ?? null,
       setItem: (key: string, value: string) => {
         memory.set(key, value);
       },
     };
+  }
+
+  it('restores pairs this browser already saw', () => {
+    const storage = memoryStorage();
     const store: RoomSelectStore = { version: 1, rooms: { '3': { mopPressure: pressure } } };
 
-    writeRoomSelectStore(store, storage);
+    writeRoomSelectStore(kitchenKey, store, storage);
 
-    expect(readRoomSelectStore(storage)).toEqual(store);
+    expect(readRoomSelectStore(kitchenKey, storage)).toEqual(store);
+  });
+
+  it('keeps another vacuum with the same room id separate', () => {
+    const storage = memoryStorage();
+    writeRoomSelectStore(kitchenKey, { version: 1, rooms: { '3': { mopPressure: pressure } } }, storage);
+
+    expect(readRoomSelectStore(upstairsKey, storage)).toEqual(emptyStore);
+  });
+
+  it('falls back to an empty store when storage is blocked', () => {
+    const blocked = {
+      getItem: (): string | null => {
+        throw new DOMException('Storage is disabled', 'SecurityError');
+      },
+    };
+
+    expect(readRoomSelectStore(kitchenKey, blocked)).toEqual(emptyStore);
+  });
+
+  it('falls back to an empty store when the stored value is corrupt', () => {
+    const storage = memoryStorage();
+    storage.setItem(kitchenKey, '{not json');
+
+    expect(readRoomSelectStore(kitchenKey, storage)).toEqual(emptyStore);
+  });
+
+  it('keeps working when storage is full', () => {
+    const full = {
+      setItem: (): void => {
+        throw new DOMException('Quota exceeded', 'QuotaExceededError');
+      },
+    };
+
+    expect(() => writeRoomSelectStore(kitchenKey, emptyStore, full)).not.toThrow();
   });
 });
 

@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import type { VacuumPosition } from '@/types/homeassistant';
 import type { MapTransform } from '@/utils/mapTransform';
-import './VacuumPositionMarker.scss';
 
 // MDI battery-charging icon path (viewBox 0 0 24 24)
 const BATTERY_CHARGING_PATH =

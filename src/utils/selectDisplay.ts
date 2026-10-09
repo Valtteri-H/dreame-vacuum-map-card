@@ -13,6 +13,15 @@ export function sameStringList(left: readonly string[], right: readonly string[]
   return left.length === right.length && left.every((value, index) => value === right[index]);
 }
 
+/** A select change queued while leaving Customize goes out once Customize is off and the select offers that option again. */
+export function queuedSelectReady(
+  customizedCleaning: boolean,
+  selectOptions: readonly string[],
+  option: string
+): boolean {
+  return !customizedCleaning && publishedOptionList(selectOptions).includes(option);
+}
+
 export interface SelectDisplay {
   options: string[];
   clicksEnabled: boolean;

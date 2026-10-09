@@ -4,7 +4,6 @@ import { useDeviceEntities, useHass } from '@/contexts';
 import { useTranslation } from '@/hooks';
 import { getEntityState } from '@/hooks/useEntityState';
 import { classifyDockStatus, DOCK_TASKS } from '@/utils/dockPopup';
-import './DockPopup.scss';
 
 const TASK_ICONS: Record<(typeof DOCK_TASKS)[number]['key'], LucideIcon> = {
   start_auto_empty: Trash2,

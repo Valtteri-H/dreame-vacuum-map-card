@@ -15,7 +15,6 @@ import {
 import { Gauge, Thermometer } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { RoomSetting } from '@/hooks';
-import './CustomizeMode.scss';
 
 const MOP_PRESSURE_ICONS: Record<string, ReactNode> = {
   light: <Gauge size={18} strokeWidth={1.5} />,
@@ -317,6 +316,7 @@ export function CustomizeMode() {
   const { roomSettings, setSuctionLevel, setWetnessLevel, setCleaningTimes, setMopPressure, setMopTemperature } =
     useRoomSettings({
       hass,
+      vacuumEntityId: config.entity,
       rooms: rooms.map((r) => ({ id: r.id, name: r.name })),
     });
 

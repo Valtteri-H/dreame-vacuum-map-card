@@ -10,6 +10,7 @@ export const he: Translation = {
     save: 'שמור',
     apply: 'החל',
     reset: 'אפס',
+    confirm_tap: 'הקש שוב לאישור',
   },
 
   // בחירת חדרים
@@ -29,6 +30,7 @@ export const he: Translation = {
     diagnostic_no_camera: 'מצלמת המפה חסרה',
     diagnostic_no_rooms: 'במפה זו אין חדרים',
     diagnostic_bad_calibration: 'כיול המפה חסר',
+    diagnostic_image_failed: 'טעינת תמונת המפה נכשלה',
     looking_for: 'מחפש את: {{entity}}',
     room_overlay: 'לחץ על מספרי החדרים כדי לבחור חדרים לניקוי',
     zone_overlay_create: 'לחץ על המפה כדי להוסיף אזור ניקוי',
@@ -252,6 +254,7 @@ export const he: Translation = {
     service_call_failed: 'שגיאה בשליחת פקודה לשואב',
     map_transform_unavailable: 'קואורדינטות המפה אינן זמינות. ניקוי האזור לא התחיל.',
     entity_unavailable: 'השואב אינו זמין',
+    entity_discovery_failed: 'לא ניתן לטעון את הישויות של השואב מ-Home Assistant. חלק מהפקדים מוסתרים.',
   },
 
   // פאנל הגדרות

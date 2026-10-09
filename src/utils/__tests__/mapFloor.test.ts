@@ -1,9 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { readLiveMapFloor, resolveCleaningSelection } from '../mapFloor';
 
+type CameraAttributes = { map_id?: number; saved_map_id?: number; entity_picture?: string };
+
+function loadedKey(camera: CameraAttributes): string | null {
+  return readLiveMapFloor(undefined, camera).imageKey;
+}
+
 describe('readLiveMapFloor', () => {
   it('treats a missing selected map as a ready single floor', () => {
-    expect(readLiveMapFloor(undefined, { map_id: 1, entity_picture: '/map?v=1' }, '/map?v=1')).toMatchObject({
+    const camera = { map_id: 1, entity_picture: '/map?v=1' };
+
+    expect(readLiveMapFloor(undefined, camera, loadedKey(camera))).toMatchObject({
       floorId: null,
       floorReady: true,
       imageReady: true,
@@ -11,11 +19,15 @@ describe('readLiveMapFloor', () => {
   });
 
   it('waits while the live camera still shows another floor', () => {
-    expect(readLiveMapFloor(2, { map_id: 1, entity_picture: '/map?v=1' }, '/map?v=1').floorReady).toBe(false);
+    const camera = { map_id: 1, entity_picture: '/map?v=1' };
+
+    expect(readLiveMapFloor(2, camera, loadedKey(camera)).floorReady).toBe(false);
   });
 
   it('accepts the live camera once its map id matches the selection', () => {
-    expect(readLiveMapFloor(2, { map_id: 2, entity_picture: '/map?v=2' }, '/map?v=2')).toMatchObject({
+    const camera = { map_id: 2, entity_picture: '/map?v=2' };
+
+    expect(readLiveMapFloor(2, camera, loadedKey(camera))).toMatchObject({
       floorId: 2,
       floorReady: true,
       imageReady: true,
@@ -23,27 +35,52 @@ describe('readLiveMapFloor', () => {
   });
 
   it('accepts a live map whose saved_map_id matches the selection even when map_id differs', () => {
-    expect(readLiveMapFloor(19, { map_id: 1, saved_map_id: 19, entity_picture: '/map?v=1' }, '/map?v=1')).toMatchObject(
-      {
-        floorId: 19,
-        floorReady: true,
-        imageReady: true,
-      }
-    );
+    const camera = { map_id: 1, saved_map_id: 19, entity_picture: '/map?v=1' };
+
+    expect(readLiveMapFloor(19, camera, loadedKey(camera))).toMatchObject({
+      floorId: 19,
+      floorReady: true,
+      imageReady: true,
+    });
   });
 
   it('still waits when neither the live nor the saved map id matches the selection', () => {
-    expect(
-      readLiveMapFloor(19, { map_id: 1, saved_map_id: 20, entity_picture: '/map?v=1' }, '/map?v=1').floorReady
-    ).toBe(false);
+    const camera = { map_id: 1, saved_map_id: 20, entity_picture: '/map?v=1' };
+
+    expect(readLiveMapFloor(19, camera, loadedKey(camera)).floorReady).toBe(false);
   });
 
-  it('marks the image stale when the camera picture token changes', () => {
-    const current = readLiveMapFloor(1, { map_id: 1, entity_picture: '/map?v=2' }, '/map?v=1');
+  it('is not ready before any picture has loaded', () => {
+    expect(readLiveMapFloor(1, { map_id: 1, entity_picture: '/map?v=1' }).imageReady).toBe(false);
+  });
 
-    expect(current.imageToken).toBe('/map?v=2');
+  it('is not ready without a camera picture', () => {
+    const current = readLiveMapFloor(1, { map_id: 1 }, loadedKey({ map_id: 1, entity_picture: '/map?v=1' }));
+
+    expect(current.imageKey).toBeNull();
     expect(current.imageReady).toBe(false);
-    expect(readLiveMapFloor(1, { map_id: 1, entity_picture: '/map?v=2' }, '/map?v=2').imageReady).toBe(true);
+  });
+
+  it('stays ready when only the picture token changes for the same map', () => {
+    const current = readLiveMapFloor(
+      1,
+      { map_id: 1, entity_picture: '/map?token=b' },
+      loadedKey({ map_id: 1, entity_picture: '/map?token=a' })
+    );
+
+    expect(current.imageToken).toBe('/map?token=b');
+    expect(current.imageReady).toBe(true);
+  });
+
+  it('marks the picture stale when the camera switches to another map', () => {
+    const current = readLiveMapFloor(
+      2,
+      { map_id: 2, saved_map_id: 2, entity_picture: '/map?v=2' },
+      loadedKey({ map_id: 1, saved_map_id: 1, entity_picture: '/map?v=1' })
+    );
+
+    expect(current.floorReady).toBe(true);
+    expect(current.imageReady).toBe(false);
   });
 });
 

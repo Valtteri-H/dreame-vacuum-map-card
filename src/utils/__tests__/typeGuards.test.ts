@@ -16,4 +16,12 @@ describe('validateConfig', () => {
     expect(result.warnings[0]).toContain('theme is ignored');
     expect(result.warnings[1]).toContain('custom_theme is ignored');
   });
+
+  it.each(['520px', '60vh', 520])('accepts map_height %j', (mapHeight) => {
+    expect(validateConfig({ ...baseConfig, map_height: mapHeight }).valid).toBe(true);
+  });
+
+  it.each([0, -100])('rejects a map_height of %j pixels', (mapHeight) => {
+    expect(validateConfig({ ...baseConfig, map_height: mapHeight }).valid).toBe(false);
+  });
 });

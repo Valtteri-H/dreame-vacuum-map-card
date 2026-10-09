@@ -1,35 +1,33 @@
 import { useState, useCallback } from 'react';
 import type { AreaSelectionMode, CleaningSelectionMode, Spot, Zone } from '@/types/homeassistant';
-import { DEFAULTS, STORAGE_KEY } from '@/constants';
+import { DEFAULTS, STORAGE_KEY, vacuumStorageKey } from '@/constants';
 import { logger } from '@/utils/logger';
 
 export type RepeatCount = 1 | 2 | 3;
-
-const REPEAT_COUNT_STORAGE_KEY = 'dreame-vacuum-card:repeat_count';
 
 export function parseAreaSelectionMode(value: string | null): AreaSelectionMode {
   return value === 'spot' ? 'spot' : 'zone';
 }
 
-function loadAreaSelectionMode(): AreaSelectionMode {
+function loadAreaSelectionMode(storageKey: string): AreaSelectionMode {
   try {
-    return parseAreaSelectionMode(localStorage.getItem(STORAGE_KEY.AREA_SELECTION_MODE));
+    return parseAreaSelectionMode(localStorage.getItem(storageKey));
   } catch {
     return 'zone';
   }
 }
 
-function saveAreaSelectionMode(mode: AreaSelectionMode): void {
+function saveAreaSelectionMode(storageKey: string, mode: AreaSelectionMode): void {
   try {
-    localStorage.setItem(STORAGE_KEY.AREA_SELECTION_MODE, mode);
+    localStorage.setItem(storageKey, mode);
   } catch {
     // localStorage not available
   }
 }
 
-function loadRepeatCount(): RepeatCount {
+function loadRepeatCount(storageKey: string): RepeatCount {
   try {
-    const stored = localStorage.getItem(REPEAT_COUNT_STORAGE_KEY);
+    const stored = localStorage.getItem(storageKey);
     if (stored) {
       const value = parseInt(stored, 10);
       if (value >= 1 && value <= 3) {
@@ -42,36 +40,41 @@ function loadRepeatCount(): RepeatCount {
   return 1;
 }
 
-function saveRepeatCount(count: RepeatCount): void {
+function saveRepeatCount(storageKey: string, count: RepeatCount): void {
   try {
-    localStorage.setItem(REPEAT_COUNT_STORAGE_KEY, String(count));
+    localStorage.setItem(storageKey, String(count));
   } catch {
     // localStorage not available
   }
 }
 
-function clearRepeatCount(): void {
+function clearRepeatCount(storageKey: string): void {
   try {
-    localStorage.removeItem(REPEAT_COUNT_STORAGE_KEY);
+    localStorage.removeItem(storageKey);
   } catch {
     // localStorage not available
   }
 }
 
 interface UseCardUIStateOptions {
+  vacuumEntityId: string;
   defaultMode?: CleaningSelectionMode;
 }
 
-export function useCardUIState({ defaultMode = DEFAULTS.MODE }: UseCardUIStateOptions = {}) {
+export function useCardUIState({ vacuumEntityId, defaultMode = DEFAULTS.MODE }: UseCardUIStateOptions) {
+  const areaSelectionModeKey = vacuumStorageKey(STORAGE_KEY.AREA_SELECTION_MODE, vacuumEntityId);
+  const repeatCountKey = vacuumStorageKey(STORAGE_KEY.REPEAT_COUNT, vacuumEntityId);
   const [selectedMode, setSelectedMode] = useState<CleaningSelectionMode>(defaultMode);
-  const [areaSelectionMode, setAreaSelectionMode] = useState<AreaSelectionMode>(loadAreaSelectionMode);
+  const [areaSelectionMode, setAreaSelectionMode] = useState<AreaSelectionMode>(() =>
+    loadAreaSelectionMode(areaSelectionModeKey)
+  );
   const [selectedRooms, setSelectedRooms] = useState<Map<number, string>>(new Map());
   const [selectedZones, setSelectedZones] = useState<Zone[]>([]);
   const [selectedSpots, setSelectedSpots] = useState<Spot[]>([]);
   const [modalOpened, setModalOpened] = useState(false);
   const [shortcutsModalOpened, setShortcutsModalOpened] = useState(false);
   const [settingsPanelOpened, setSettingsPanelOpened] = useState(false);
-  const [repeatCount, setRepeatCount] = useState<RepeatCount>(loadRepeatCount);
+  const [repeatCount, setRepeatCount] = useState<RepeatCount>(() => loadRepeatCount(repeatCountKey));
 
   const handleModeChange = useCallback((mode: CleaningSelectionMode) => {
     logger.debug('UI', 'Mode changed:', mode);
@@ -81,13 +84,16 @@ export function useCardUIState({ defaultMode = DEFAULTS.MODE }: UseCardUIStateOp
     setSelectedSpots([]);
   }, []);
 
-  const handleAreaSelectionModeChange = useCallback((mode: AreaSelectionMode) => {
-    logger.debug('UI', 'Area selection mode changed:', mode);
-    setAreaSelectionMode(mode);
-    saveAreaSelectionMode(mode);
-    setSelectedZones([]);
-    setSelectedSpots([]);
-  }, []);
+  const handleAreaSelectionModeChange = useCallback(
+    (mode: AreaSelectionMode) => {
+      logger.debug('UI', 'Area selection mode changed:', mode);
+      setAreaSelectionMode(mode);
+      saveAreaSelectionMode(areaSelectionModeKey, mode);
+      setSelectedZones([]);
+      setSelectedSpots([]);
+    },
+    [areaSelectionModeKey]
+  );
 
   const handleRoomToggle = useCallback((roomId: number, roomName: string): void => {
     setSelectedRooms((prevSelected) => {
@@ -131,17 +137,17 @@ export function useCardUIState({ defaultMode = DEFAULTS.MODE }: UseCardUIStateOp
   const cycleRepeatCount = useCallback(() => {
     setRepeatCount((prev) => {
       const next = ((prev % 3) + 1) as RepeatCount;
-      saveRepeatCount(next);
+      saveRepeatCount(repeatCountKey, next);
       logger.debug('UI', 'Repeat count cycled to', next);
       return next;
     });
-  }, []);
+  }, [repeatCountKey]);
 
   const resetRepeatCount = useCallback(() => {
     setRepeatCount(1);
-    clearRepeatCount();
+    clearRepeatCount(repeatCountKey);
     logger.debug('UI', 'Repeat count reset to 1');
-  }, []);
+  }, [repeatCountKey]);
 
   return {
     selectedMode,

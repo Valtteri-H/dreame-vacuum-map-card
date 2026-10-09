@@ -8,6 +8,7 @@ export const en = {
     save: 'Save',
     apply: 'Apply',
     reset: 'Reset',
+    confirm_tap: 'Tap again to confirm',
   },
 
   // Room Selector
@@ -27,6 +28,7 @@ export const en = {
     diagnostic_no_camera: 'Map camera is missing',
     diagnostic_no_rooms: 'This map has no rooms',
     diagnostic_bad_calibration: 'Map calibration is missing',
+    diagnostic_image_failed: 'The map image failed to load',
     looking_for: 'Looking for: {{entity}}',
     room_overlay: 'Click on room numbers to select rooms for cleaning',
     zone_overlay_create: 'Click on the map to place a cleaning zone',
@@ -250,6 +252,7 @@ export const en = {
     service_call_failed: 'Failed to send command to vacuum',
     map_transform_unavailable: 'Map coordinates are unavailable. Zone cleaning was not started.',
     entity_unavailable: 'Vacuum is unavailable',
+    entity_discovery_failed: "Couldn't load this vacuum's entities from Home Assistant. Some controls are hidden.",
   },
 
   // Settings Panel

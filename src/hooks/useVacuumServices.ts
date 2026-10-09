@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
 import type { Hass, CleaningSelectionMode, Spot, Zone, StopAction } from '@/types/homeassistant';
-import type { RoomCleaningConfig } from '@/types/vacuum';
 import type { MapTransform } from '@/utils/mapTransform';
 import { useTranslation } from './useTranslation';
 import { buildCleanSpotPayload, buildCleanZonePayload } from '@/utils/zoneConverter';
@@ -66,6 +65,21 @@ export function useVacuumServices({
     }
   }, [hass, entityId, onSuccess, onError, t]);
 
+  const handleResume = useCallback(async () => {
+    logger.debug('Vacuum', 'Resume', entityId);
+    const success = await safeCallService(
+      hass,
+      'vacuum',
+      'start',
+      { entity_id: entityId },
+      onError,
+      t('errors.service_call_failed')
+    );
+    if (success) {
+      onSuccess?.(t('toast.resuming'));
+    }
+  }, [hass, entityId, onSuccess, onError, t]);
+
   const handlePause = useCallback(async () => {
     logger.debug('Vacuum', 'Pause', entityId);
     const success = await safeCallService(
@@ -92,20 +106,21 @@ export function useVacuumServices({
         onError,
         t('errors.service_call_failed')
       );
-      if (success) {
-        if (action === 'stop_and_dock') {
-          await safeCallService(
-            hass,
-            'vacuum',
-            'return_to_base',
-            { entity_id: entityId },
-            onError,
-            t('errors.service_call_failed')
-          );
-          onSuccess?.(t('toast.stopping_and_docking'));
-        } else {
-          onSuccess?.(t('toast.stopping_vacuum'));
-        }
+      if (!success) return;
+      if (action !== 'stop_and_dock') {
+        onSuccess?.(t('toast.stopping_vacuum'));
+        return;
+      }
+      const docking = await safeCallService(
+        hass,
+        'vacuum',
+        'return_to_base',
+        { entity_id: entityId },
+        onError,
+        t('errors.service_call_failed')
+      );
+      if (docking) {
+        onSuccess?.(t('toast.stopping_and_docking'));
       }
     },
     [hass, entityId, onSuccess, onError, t]
@@ -142,55 +157,6 @@ export function useVacuumServices({
         t('errors.service_call_failed')
       );
       if (success) {
-        const key = count === 1 ? 'toast.starting_room_clean' : 'toast.starting_room_clean_plural';
-        onSuccess?.(t(key, { count: String(count) }));
-      }
-    },
-    [hass, entityId, onSuccess, onError, t]
-  );
-
-  /**
-   * Clean segments with per-room configuration (for Customize mode)
-   * Sends arrays of per-room settings to the Dreame vacuum service
-   */
-  const handleCleanSegmentsCustomized = useCallback(
-    async (roomConfigs: RoomCleaningConfig[]) => {
-      if (roomConfigs.length === 0) {
-        logger.debug('Vacuum', 'No room configs provided');
-        return;
-      }
-
-      const segments = roomConfigs.map((c) => c.roomId);
-      const repeats = roomConfigs.map((c) => c.cycles);
-      const suctionLevels = roomConfigs.map((c) => c.suctionLevel);
-      const waterVolumes = roomConfigs.map((c) => c.mopWetness);
-
-      logger.debug('Vacuum', 'Clean segments with custom config', {
-        entityId,
-        segments,
-        repeats,
-        suctionLevels,
-        waterVolumes,
-        roomConfigs,
-      });
-
-      const success = await safeCallService(
-        hass,
-        'dreame_vacuum',
-        'vacuum_clean_segment',
-        {
-          entity_id: entityId,
-          segments,
-          repeats,
-          suction_level: suctionLevels,
-          water_volume: waterVolumes,
-        },
-        onError,
-        t('errors.service_call_failed')
-      );
-
-      if (success) {
-        const count = roomConfigs.length;
         const key = count === 1 ? 'toast.starting_room_clean' : 'toast.starting_room_clean_plural';
         onSuccess?.(t(key, { count: String(count) }));
       }
@@ -280,14 +246,13 @@ export function useVacuumServices({
   );
 
   const handleClean = useCallback(
-    (
+    async (
       mode: CleaningSelectionMode,
       selectedRooms: Map<number, string>,
       selectedZones: Zone[],
       imageWidth?: number,
       imageHeight?: number,
-      repeats: number = 1,
-      roomConfigs?: RoomCleaningConfig[]
+      repeats: number = 1
     ) => {
       logger.debug('Vacuum', 'Handle clean', {
         mode,
@@ -296,33 +261,15 @@ export function useVacuumServices({
         imageWidth,
         imageHeight,
         repeats,
-        customizeMode: !!roomConfigs,
       });
 
       switch (mode) {
         case 'all':
-          // If customize mode with room configs, clean all rooms with customized settings
-          if (roomConfigs && roomConfigs.length > 0) {
-            handleCleanSegmentsCustomized(roomConfigs);
-          } else {
-            handleStart();
-          }
+          await handleStart();
           break;
         case 'room':
           if (selectedRooms.size > 0) {
-            // If customize mode with room configs, use customized settings
-            if (roomConfigs && roomConfigs.length > 0) {
-              // Filter configs to only selected rooms
-              const selectedConfigs = roomConfigs.filter((c) => selectedRooms.has(c.roomId));
-              if (selectedConfigs.length > 0) {
-                handleCleanSegmentsCustomized(selectedConfigs);
-              } else {
-                // Fallback to standard cleaning if no configs match
-                handleCleanSegments(Array.from(selectedRooms.keys()), selectedRooms.size, repeats);
-              }
-            } else {
-              handleCleanSegments(Array.from(selectedRooms.keys()), selectedRooms.size, repeats);
-            }
+            await handleCleanSegments(Array.from(selectedRooms.keys()), selectedRooms.size, repeats);
           } else {
             logger.debug('Vacuum', 'No rooms selected');
             onSuccess?.(t('toast.select_rooms_first'));
@@ -330,7 +277,7 @@ export function useVacuumServices({
           break;
         case 'zone':
           if (selectedZones.length > 0 && imageWidth && imageHeight) {
-            handleCleanZone(selectedZones, imageWidth, imageHeight, repeats);
+            await handleCleanZone(selectedZones, imageWidth, imageHeight, repeats);
           } else if (selectedZones.length > 0) {
             logger.debug('Vacuum', 'Zones selected but no image dimensions');
             onSuccess?.(t('toast.cannot_determine_map'));
@@ -341,16 +288,16 @@ export function useVacuumServices({
           break;
       }
     },
-    [handleStart, handleCleanSegments, handleCleanSegmentsCustomized, handleCleanZone, onSuccess, t]
+    [handleStart, handleCleanSegments, handleCleanZone, onSuccess, t]
   );
 
   return {
     handleStart,
+    handleResume,
     handlePause,
     handleStop,
     handleDock,
     handleCleanSegments,
-    handleCleanSegmentsCustomized,
     handleCleanZone,
     handleCleanSpots,
     handleClean,

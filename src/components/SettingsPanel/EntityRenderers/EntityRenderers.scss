@@ -103,6 +103,10 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
+
+    &--armed {
+      background: var(--error-color, #db4437);
+    }
   }
 
   &__slider-container {

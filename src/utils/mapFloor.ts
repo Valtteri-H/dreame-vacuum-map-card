@@ -7,9 +7,14 @@ export interface LiveMapFloor {
    * `saved_map_id`; the vacuum's `selected_map_id` is that saved map id, so either may match.
    */
   floorReady: boolean;
-  /** Camera `entity_picture`, including its cache-busting query. */
+  /** Camera `entity_picture`, including its access token and cache-busting query. */
   imageToken: string | null;
-  /** The loaded image is the camera's current picture. */
+  /**
+   * The camera map the picture shows. Token rotation and refreshes of the same map change `imageToken`
+   * but not this key, so overlays stay up while the next picture of that map loads.
+   */
+  imageKey: string | null;
+  /** A picture of the camera's current map has loaded. */
   imageReady: boolean;
 }
 
@@ -20,19 +25,21 @@ function finiteMapId(value: unknown): number | null {
 export function readLiveMapFloor(
   selectedMapId: unknown,
   cameraAttributes: { map_id?: unknown; saved_map_id?: unknown; entity_picture?: unknown } | undefined,
-  loadedImageToken: string | null = null
+  loadedImageKey: string | null = null
 ): LiveMapFloor {
   const selected = finiteMapId(selectedMapId);
   const cameraMapId = finiteMapId(cameraAttributes?.map_id);
   const cameraSavedMapId = finiteMapId(cameraAttributes?.saved_map_id);
   const picture = cameraAttributes?.entity_picture;
   const imageToken = typeof picture === 'string' && picture.length > 0 ? picture : null;
+  const imageKey = imageToken === null ? null : `${cameraMapId}:${cameraSavedMapId}`;
 
   return {
     floorId: selected,
     floorReady: selected === null || cameraSavedMapId === selected || cameraMapId === selected,
     imageToken,
-    imageReady: imageToken !== null && imageToken === loadedImageToken,
+    imageKey,
+    imageReady: imageKey !== null && imageKey === loadedImageKey,
   };
 }
 

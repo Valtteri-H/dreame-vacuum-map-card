@@ -21,7 +21,6 @@ import {
 } from '@/hooks';
 import type { RepeatCount } from '@/hooks/useCardUIState';
 import {
-  extractEntityData,
   getEffectiveCleaningMode,
   getAttr,
   getActiveSegments,
@@ -37,7 +36,6 @@ import type { Hass, HassConfig } from '@/types/homeassistant';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { CSSProperties } from 'react';
 import { logger } from '@/utils/logger';
-import './DreameVacuumCard.scss';
 
 function publishedOrAttribute(hass: Hass, entityId: string | undefined, attribute: unknown): string {
   const published = readSelectEntity(entityId ? hass.states[entityId] : undefined).value;
@@ -88,7 +86,8 @@ export function DreameVacuumCard({ hass, config }: DreameVacuumCardProps) {
 
   // Track map image dimensions and the picture token those dimensions belong to
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
-  const [loadedImageToken, setLoadedImageToken] = useState<string | null>(null);
+  const [loadedImageKey, setLoadedImageKey] = useState<string | null>(null);
+  const [failedImageToken, setFailedImageToken] = useState<string | null>(null);
 
   // State management
   const {
@@ -113,13 +112,13 @@ export function DreameVacuumCard({ hass, config }: DreameVacuumCardProps) {
     handleRoomToggle,
     cycleRepeatCount,
     resetRepeatCount,
-  } = useCardUIState({ defaultMode: config.default_mode });
+  } = useCardUIState({ vacuumEntityId: config.entity, defaultMode: config.default_mode });
 
   const mapEntityId = resolveMapEntityId(config.map_entity, deviceEntities.get('camera', 'map'));
   const cameraAttributes = mapEntityId ? hass.states[mapEntityId]?.attributes : undefined;
-  const mapFloor = readLiveMapFloor(entity?.attributes.selected_map_id, cameraAttributes, loadedImageToken);
+  const mapFloor = readLiveMapFloor(entity?.attributes.selected_map_id, cameraAttributes, loadedImageKey);
   const mapReady = mapFloor.floorReady && mapFloor.imageReady;
-  if (imageDimensions && mapFloor.imageToken !== loadedImageToken) {
+  if (imageDimensions && mapFloor.imageKey !== loadedImageKey) {
     setImageDimensions(null);
   }
 
@@ -186,22 +185,14 @@ export function DreameVacuumCard({ hass, config }: DreameVacuumCardProps) {
   // Toast notifications
   const { toast, showToast, hideToast } = useToast();
 
-  // Show error messages via toast with error styling
-  const showError = useCallback(
-    (message: string) => {
-      showToast(message);
-    },
-    [showToast]
-  );
-
   // Vacuum services
-  const { handlePause, handleStop, handleDock, handleClean, handleCleanSpots } = useVacuumServices({
+  const { handlePause, handleResume, handleStop, handleDock, handleClean, handleCleanSpots } = useVacuumServices({
     hass,
     entityId: config.entity,
     mapEntityId,
     mapTransform: displayedGeometry.transform,
     onSuccess: showToast,
-    onError: showError,
+    onError: showToast,
   });
 
   // Handle room toggle with toast
@@ -216,27 +207,33 @@ export function DreameVacuumCard({ hass, config }: DreameVacuumCardProps) {
     [selectedRooms, handleRoomToggle, showToast, t]
   );
 
-  // Handle clean action
+  const cleanInFlight = useRef(false);
   const handleCleanAction = useCallback(async () => {
-    if (selectedMode === 'zone' && areaSelectionMode === 'spot') {
-      const success = await handleCleanSpots(
-        selectedSpots,
-        imageDimensions?.width ?? 0,
-        imageDimensions?.height ?? 0,
+    if (cleanInFlight.current) return;
+    cleanInFlight.current = true;
+    try {
+      if (selectedMode === 'zone' && areaSelectionMode === 'spot') {
+        const success = await handleCleanSpots(
+          selectedSpots,
+          imageDimensions?.width ?? 0,
+          imageDimensions?.height ?? 0,
+          repeatCount
+        );
+        if (success) setSelectedSpots([]);
+        return;
+      }
+
+      await handleClean(
+        selectedMode,
+        selectedRooms,
+        selectedZones,
+        imageDimensions?.width,
+        imageDimensions?.height,
         repeatCount
       );
-      if (success) setSelectedSpots([]);
-      return;
+    } finally {
+      cleanInFlight.current = false;
     }
-
-    handleClean(
-      selectedMode,
-      selectedRooms,
-      selectedZones,
-      imageDimensions?.width,
-      imageDimensions?.height,
-      repeatCount
-    );
   }, [
     selectedMode,
     areaSelectionMode,
@@ -250,12 +247,6 @@ export function DreameVacuumCard({ hass, config }: DreameVacuumCardProps) {
     setSelectedSpots,
   ]);
 
-  // Handle resume (just calls start)
-  const handleResume = useCallback(() => {
-    hass.callService('vacuum', 'start', { entity_id: config.entity });
-    showToast(t('toast.resuming'));
-  }, [hass, config.entity, showToast, t]);
-
   // Memoized handlers for modal/panel open/close
   const handleSettingsOpen = useCallback(() => setSettingsPanelOpened(true), [setSettingsPanelOpened]);
   const handleSettingsClose = useCallback(() => setSettingsPanelOpened(false), [setSettingsPanelOpened]);
@@ -264,11 +255,14 @@ export function DreameVacuumCard({ hass, config }: DreameVacuumCardProps) {
   const handleShortcutsOpen = useCallback(() => setShortcutsModalOpened(true), [setShortcutsModalOpened]);
   const handleShortcutsClose = useCallback(() => setShortcutsModalOpened(false), [setShortcutsModalOpened]);
 
-  // Memoized handler for image dimensions
-  const handleImageDimensionsChange = useCallback((width: number, height: number, imageToken: string) => {
-    setLoadedImageToken(imageToken);
-    setImageDimensions({ width, height });
-  }, []);
+  const handleImageDimensionsChange = useCallback(
+    (width: number, height: number, imageToken: string) => {
+      if (imageToken !== mapFloor.imageToken) return;
+      setLoadedImageKey(mapFloor.imageKey);
+      setImageDimensions({ width, height });
+    },
+    [mapFloor.imageToken, mapFloor.imageKey]
+  );
 
   // Error handling
   if (!entity) {
@@ -284,19 +278,15 @@ export function DreameVacuumCard({ hass, config }: DreameVacuumCardProps) {
     );
   }
 
-  // Extract entity data
-  const entityData = extractEntityData(entity, config, mapEntityId);
-  if (!entityData) {
-    return <div className="dreame-vacuum-card__error">{t('errors.failed_to_load')}</div>;
-  }
-
-  const { deviceName } = entityData;
+  const deviceName = config.title || entity.attributes.friendly_name || 'Dreame Vacuum';
   const effectiveMode = getEffectiveCleaningMode(entity, selectedMode);
+  const mapMaxHeight = typeof config.map_height === 'number' ? `${config.map_height}px` : config.map_height;
 
   // Check for shortcuts capability
   const hasShortcuts = (entity.attributes.capabilities ?? []).includes(CAPABILITY.SHORTCUTS);
   const diagnostic = mapDiagnostic({
     hasCamera: Boolean(mapEntityId && hass.states[mapEntityId]),
+    imageFailed: mapFloor.imageToken !== null && failedImageToken === mapFloor.imageToken,
     floorReady: mapFloor.floorReady,
     imageReady: mapFloor.imageReady,
     roomCount: displayedGeometry.rooms.length,
@@ -308,7 +298,7 @@ export function DreameVacuumCard({ hass, config }: DreameVacuumCardProps) {
       <div
         className="dreame-vacuum-card"
         dir={isRtl ? 'rtl' : 'ltr'}
-        style={config.map_height ? ({ '--map-max-height': config.map_height } as CSSProperties) : undefined}
+        style={mapMaxHeight ? ({ '--map-max-height': mapMaxHeight } as CSSProperties) : undefined}
       >
         <div className="dreame-vacuum-card__container">
           <div className="dreame-vacuum-card__header">
@@ -316,6 +306,9 @@ export function DreameVacuumCard({ hass, config }: DreameVacuumCardProps) {
 
             <MapSelector />
 
+            {deviceEntities.status === 'error' && (
+              <p className="dreame-vacuum-card__diagnostic">{t('errors.entity_discovery_failed')}</p>
+            )}
             {diagnostic && <p className="dreame-vacuum-card__diagnostic">{t(`vacuum_map.diagnostic_${diagnostic}`)}</p>}
           </div>
 
@@ -332,6 +325,7 @@ export function DreameVacuumCard({ hass, config }: DreameVacuumCardProps) {
               spots={mapReady ? selectedSpots : []}
               onSpotsChange={setSelectedSpots}
               onImageDimensionsChange={handleImageDimensionsChange}
+              onImageError={setFailedImageToken}
               defaultRoomView={config.default_room_view}
             />
           </div>

@@ -10,6 +10,7 @@ export const es: Translation = {
     save: 'Guardar',
     apply: 'Aplicar',
     reset: 'Restablecer',
+    confirm_tap: 'Toca de nuevo para confirmar',
   },
 
   // Room Selector
@@ -29,6 +30,7 @@ export const es: Translation = {
     diagnostic_no_camera: 'Falta la cámara del mapa',
     diagnostic_no_rooms: 'Este mapa no tiene habitaciones',
     diagnostic_bad_calibration: 'Falta la calibración del mapa',
+    diagnostic_image_failed: 'No se pudo cargar la imagen del mapa',
     looking_for: 'Buscando: {{entity}}',
     room_overlay: 'Haga clic en los números de las habitaciones para seleccionarlas para la limpieza',
     zone_overlay_create: 'Haga clic en el mapa para colocar una zona de limpieza',
@@ -253,6 +255,8 @@ export const es: Translation = {
     service_call_failed: 'Error al enviar comando a la aspiradora',
     map_transform_unavailable: 'Las coordenadas del mapa no están disponibles. No se inició la limpieza por zonas.',
     entity_unavailable: 'Aspiradora no disponible',
+    entity_discovery_failed:
+      'No se pudieron cargar las entidades de esta aspiradora desde Home Assistant. Algunos controles están ocultos.',
   },
 
   // Settings Panel

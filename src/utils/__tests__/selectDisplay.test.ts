@@ -1,5 +1,23 @@
 import { describe, expect, it } from 'vitest';
-import { resolvePublishedOptions, resolveSuctionDisplay } from '../selectDisplay';
+import { queuedSelectReady, resolvePublishedOptions, resolveSuctionDisplay } from '../selectDisplay';
+
+describe('queuedSelectReady', () => {
+  it('waits while the select still publishes only unavailable after Customize turns off', () => {
+    expect(queuedSelectReady(false, ['unavailable'], 'sweeping')).toBe(false);
+  });
+
+  it('waits while Customize is still on', () => {
+    expect(queuedSelectReady(true, ['sweeping', 'mopping'], 'sweeping')).toBe(false);
+  });
+
+  it('sends once Customize is off and the select lists the option', () => {
+    expect(queuedSelectReady(false, ['sweeping', 'mopping'], 'sweeping')).toBe(true);
+  });
+
+  it('waits while the option is missing from a real list', () => {
+    expect(queuedSelectReady(false, ['mopping'], 'sweeping')).toBe(false);
+  });
+});
 
 const idle = {
   cleaning: false,

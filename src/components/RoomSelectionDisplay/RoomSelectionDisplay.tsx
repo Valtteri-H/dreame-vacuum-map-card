@@ -1,4 +1,3 @@
-import './RoomSelectionDisplay.scss';
 import { useTranslation } from '@/hooks/useTranslation';
 
 interface RoomSelectionDisplayProps {

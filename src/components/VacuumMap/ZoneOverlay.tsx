@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useTransformContext, useTransformEffect } from 'react-zoom-pan-pinch';
 import type { Zone } from '@/types/homeassistant';
 import { useMachineState } from '@/contexts';
@@ -8,7 +8,6 @@ interface ZoneOverlayProps {
   zones: Zone[];
   onZonesChange: (zones: Zone[]) => void;
   clearZoneLabel: string;
-  contentRef: React.RefObject<HTMLDivElement | null>;
 }
 
 type ResizeHandle = 'top' | 'right' | 'bottom' | 'left' | null;
@@ -18,8 +17,9 @@ type ResizeHandle = 'top' | 'right' | 'bottom' | 'left' | null;
  * Handles zone creation (click) and resizing (drag edge handles).
  * The zone rectangle pans/zooms with the map content.
  */
-export function ZoneOverlay({ zones, onZonesChange, clearZoneLabel, contentRef }: ZoneOverlayProps) {
+export function ZoneOverlay({ zones, onZonesChange, clearZoneLabel }: ZoneOverlayProps) {
   const transformContext = useTransformContext();
+  const containerRef = useRef<HTMLDivElement>(null);
   const { phase } = useMachineState();
   const isInCleaningSession = phase === 'cleaning' || phase === 'paused';
   const [resizingHandle, setResizingHandle] = useState<ResizeHandle>(null);
@@ -35,29 +35,18 @@ export function ZoneOverlay({ zones, onZonesChange, clearZoneLabel, contentRef }
   const handleScale = 1 / scale;
   const [resizeStartZone, setResizeStartZone] = useState<Zone | null>(null);
 
-  const getContentCoordinates = useCallback(
-    (clientX: number, clientY: number): { x: number; y: number } | null => {
-      const content = contentRef.current;
-      if (!content) return null;
+  const getContentCoordinates = useCallback((clientX: number, clientY: number): { x: number; y: number } | null => {
+    const container = containerRef.current;
+    if (!container) return null;
 
-      const rect = content.getBoundingClientRect();
-      const { scale } = transformContext.state;
+    const rect = container.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return null;
 
-      // Get position relative to the transformed content
-      const x = (clientX - rect.left) / scale;
-      const y = (clientY - rect.top) / scale;
-
-      // Convert to percentage of content size
-      const contentWidth = rect.width / scale;
-      const contentHeight = rect.height / scale;
-
-      const xPercent = Math.max(0, Math.min(100, (x / contentWidth) * 100));
-      const yPercent = Math.max(0, Math.min(100, (y / contentHeight) * 100));
-
-      return { x: xPercent, y: yPercent };
-    },
-    [contentRef, transformContext]
-  );
+    return {
+      x: Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100)),
+      y: Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100)),
+    };
+  }, []);
 
   const handleContentClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -147,6 +136,7 @@ export function ZoneOverlay({ zones, onZonesChange, clearZoneLabel, contentRef }
 
   return (
     <div
+      ref={containerRef}
       className="vacuum-map__zone-container"
       onClick={handleContentClick}
       onMouseMove={handleResizeMove}

@@ -6,12 +6,11 @@ import { CustomizeMode } from './CustomizeMode';
 import { useHomeAssistantServices, useVacuumEntityIds, getEntityState, readSelectEntity } from '@/hooks';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useEntity, useHass, useMachineState } from '@/contexts';
-import { findSelectOption, getAttr, isCleangeniusOff } from '@/utils';
+import { findSelectOption, getAttr, isCleangeniusOff, queuedSelectReady } from '@/utils';
 import { CUSTOMIZE_MODE_OPTION, UI_MODE_TYPE, DEFAULTS } from '@/constants';
 import { logger } from '@/utils/logger';
-import './CleaningModeModal.scss';
 
-const CUSTOMIZE_FLAG_WAIT_MS = 5000;
+const QUEUED_SELECT_WAIT_MS = 10000;
 
 interface PendingSelect {
   entityId: string;
@@ -73,7 +72,6 @@ export function CleaningModeModal({ opened, onClose }: CleaningModeModalProps) {
   const isModeSwitchDisabled = isInCleaningSession || cleangeniusState.unavailable;
   const effectiveIsCleanGenius = hasCleanGenius && isCleanGenius;
   const pendingRef = useRef<PendingSelect | null>(null);
-  const customizedRef = useRef(isCustomizedCleaning);
   const [pendingVersion, setPendingVersion] = useState(0);
 
   const queueAfterCustomize = (entityId: string, option: string) => {
@@ -95,20 +93,18 @@ export function CleaningModeModal({ opened, onClose }: CleaningModeModalProps) {
       return;
     }
     const pending = pendingRef.current;
-    if (!pending || isCustomizedCleaning) return;
+    if (!pending) return;
+    const options = readSelectEntity(hass.states[pending.entityId]).options;
+    if (!queuedSelectReady(isCustomizedCleaning, options, pending.option)) return;
     pendingRef.current = null;
     setSelectOption(pending.entityId, pending.option);
-  }, [opened, isCustomizedCleaning, pendingVersion, setSelectOption]);
-
-  useEffect(() => {
-    customizedRef.current = isCustomizedCleaning;
-  }, [isCustomizedCleaning]);
+  }, [opened, isCustomizedCleaning, pendingVersion, hass, setSelectOption]);
 
   useEffect(() => {
     if (!opened || pendingVersion === 0) return;
     const timer = window.setTimeout(() => {
-      if (customizedRef.current) pendingRef.current = null;
-    }, CUSTOMIZE_FLAG_WAIT_MS);
+      pendingRef.current = null;
+    }, QUEUED_SELECT_WAIT_MS);
     return () => window.clearTimeout(timer);
   }, [opened, pendingVersion]);
 

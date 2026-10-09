@@ -1,5 +1,3 @@
-import './SegmentedControl.scss';
-
 interface SegmentedControlOption {
   value: string;
   label: string;
