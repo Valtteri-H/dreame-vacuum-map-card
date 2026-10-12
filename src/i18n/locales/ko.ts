@@ -73,6 +73,7 @@ export const ko: Translation = {
     stop: '중지',
     stop_and_dock: '중지 및 도크 복귀',
     dock: '도크 복귀',
+    go_to_trash_bin: 'Go to Trash Bin',
   },
 
   // Toast Messages

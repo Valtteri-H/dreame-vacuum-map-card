@@ -73,6 +73,7 @@ export const ru: Translation = {
     stop: 'Стоп',
     stop_and_dock: 'Стоп и на базу',
     dock: 'Возврат на базу',
+    go_to_trash_bin: 'Go to Trash Bin',
   },
 
   // Toast Messages

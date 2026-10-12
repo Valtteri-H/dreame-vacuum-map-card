@@ -291,6 +291,38 @@ export function useVacuumServices({
     [handleStart, handleCleanSegments, handleCleanZone, onSuccess, t]
   );
 
+  const handleGoToTrashBin = useCallback(async () => {
+    logger.debug('Vacuum', 'Go to trash bin', entityId);
+    const trashButtonEntityId = `button.${entityId.replace(/^vacuum\./, '')}_go_to_trash_bin`;
+
+    if (hass.states[trashButtonEntityId]) {
+      const success = await safeCallService(
+        hass,
+        'button',
+        'press',
+        { entity_id: trashButtonEntityId },
+        onError,
+        t('errors.service_call_failed')
+      );
+      if (success) {
+        onSuccess?.(t('actions.go_to_trash_bin'));
+        return;
+      }
+    }
+
+    const fallbackSuccess = await safeCallService(
+      hass,
+      'dreame_vacuum',
+      'vacuum_go_to_trash_bin',
+      { entity_id: entityId },
+      onError,
+      t('errors.service_call_failed')
+    );
+    if (fallbackSuccess) {
+      onSuccess?.(t('actions.go_to_trash_bin'));
+    }
+  }, [hass, entityId, onSuccess, onError, t]);
+
   return {
     handleStart,
     handleResume,
@@ -301,5 +333,6 @@ export function useVacuumServices({
     handleCleanZone,
     handleCleanSpots,
     handleClean,
+    handleGoToTrashBin,
   };
 }

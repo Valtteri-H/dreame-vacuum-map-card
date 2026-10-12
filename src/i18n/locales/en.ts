@@ -71,6 +71,7 @@ export const en = {
     stop: 'Stop',
     stop_and_dock: 'Stop & Dock',
     dock: 'Dock',
+    go_to_trash_bin: 'Go to Trash Bin',
   },
 
   // Toast Messages

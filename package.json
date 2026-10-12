@@ -1,12 +1,12 @@
 {
-  "name": "dreame-vacuum-card-react",
+  "name": "dreame-vacuum-map-card",
   "private": true,
-  "version": "1.6.1",
+  "version": "1.6.2",
   "type": "module",
   "license": "MIT",
   "author": {
-    "name": "Noam Bergauz",
-    "email": "bergauznoam@gmail.com"
+    "name": "Valtteri-H",
+    "email": "34754243+Valtteri-H@users.noreply.github.com"
   },
   "scripts": {
     "dev": "vite",

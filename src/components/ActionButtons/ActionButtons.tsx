@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import type { AreaSelectionMode, CleaningSelectionMode, StopAction } from '@/types/homeassistant';
 import { useTranslation, useButtonConfig } from '@/hooks';
-import { useMachineState } from '@/contexts';
+import { useMachineState, useHass, useEntity, useDeviceEntities } from '@/contexts';
 import { DockPopup } from '@/components/DockPopup';
 import { shouldOpenDockPopup } from '@/utils/dockPopup';
-import { CleanButton, PauseButton, ResumeButton, StopButton, DockButton } from './components';
+import { CleanButton, PauseButton, ResumeButton, StopButton, DockButton, TrashButton } from './components';
 
 interface ActionButtonsProps {
   selectedMode: CleaningSelectionMode;
@@ -16,6 +16,7 @@ interface ActionButtonsProps {
   onResume: () => void;
   onStop: (action: StopAction) => void;
   onDock: () => void;
+  onTrash?: () => void;
 }
 
 export function ActionButtons({
@@ -28,10 +29,14 @@ export function ActionButtons({
   onResume,
   onStop,
   onDock,
+  onTrash,
 }: ActionButtonsProps) {
   const { t, getRoomCountTranslation } = useTranslation();
   const { getStopAction } = useButtonConfig();
   const { phase, controls } = useMachineState();
+  const hass = useHass();
+  const entity = useEntity();
+  const { get } = useDeviceEntities();
   const [dockPopupOpened, setDockPopupOpened] = useState(false);
 
   const stopAction = getStopAction();
@@ -60,6 +65,31 @@ export function ActionButtons({
     onDock();
   };
 
+  const handleTrashClick = async (): Promise<void> => {
+    if (onTrash) {
+      onTrash();
+      return;
+    }
+    const entityId = entity.entity_id;
+    const trashButtonEntityId =
+      get('button', 'go_to_trash_bin') ?? `button.${entityId.replace(/^vacuum\./, '')}_go_to_trash_bin`;
+
+    if (hass.states[trashButtonEntityId]) {
+      try {
+        await hass.callService('button', 'press', { entity_id: trashButtonEntityId });
+        return;
+      } catch {
+        // Fallback to dreame_vacuum service
+      }
+    }
+
+    try {
+      await hass.callService('dreame_vacuum', 'vacuum_go_to_trash_bin', { entity_id: entityId });
+    } catch {
+      await hass.callService('button', 'press', { entity_id: trashButtonEntityId });
+    }
+  };
+
   if (phase === 'cleaning') {
     return (
       <div className="action-buttons">
@@ -78,6 +108,9 @@ export function ActionButtons({
     );
   }
 
+  const showTrash =
+    phase === 'idle' || (phase as string) === 'docked' || entity.state === 'docked' || entity.state === 'idle';
+
   return (
     <>
       <div className="action-buttons">
@@ -87,6 +120,7 @@ export function ActionButtons({
           disabled={!controls.canStartCleaning || !hasRequiredSelection}
         />
         <DockButton onClick={handleDockClick} disabled={!controls.canDock && !opensDockPopup} />
+        {showTrash && <TrashButton onClick={handleTrashClick} />}
       </div>
       <DockPopup opened={dockPopupOpened} onClose={() => setDockPopupOpened(false)} />
     </>

@@ -73,6 +73,7 @@ export const lt: Translation = {
     stop: 'Sustabdyti',
     stop_and_dock: 'Sustabdyti ir grįžti',
     dock: 'Grįžti į stotelę',
+    go_to_trash_bin: 'Go to Trash Bin',
   },
 
   // Toast Messages

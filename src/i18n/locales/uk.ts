@@ -73,6 +73,7 @@ export const uk: Translation = {
     stop: 'Зупинити',
     stop_and_dock: 'Зупинити й повернути на базу',
     dock: 'На базу',
+    go_to_trash_bin: 'Go to Trash Bin',
   },
 
   // Сповіщення

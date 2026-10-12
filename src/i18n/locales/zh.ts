@@ -73,6 +73,7 @@ export const zh: Translation = {
     stop: '停止',
     stop_and_dock: '停止并回充',
     dock: '回充',
+    go_to_trash_bin: 'Go to Trash Bin',
   },
 
   // Toast Messages (提示信息)

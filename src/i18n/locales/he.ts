@@ -73,6 +73,7 @@ export const he: Translation = {
     stop: 'עצור',
     stop_and_dock: 'עצור וחזור',
     dock: 'עמדת טעינה',
+    go_to_trash_bin: 'Go to Trash Bin',
   },
 
   // הודעות קופצות (Toast)

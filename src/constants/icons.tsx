@@ -31,6 +31,7 @@ import {
   StepForward,
   OctagonX,
   SlidersHorizontal,
+  Trash2,
 } from 'lucide-react';
 
 // Header
@@ -60,6 +61,8 @@ export const RESUME_CLEANING_ICON_SVG = <StepForward />;
 export const STOP_CLEANING_ICON_SVG = <OctagonX />;
 
 export const DOCK_ICON_SVG = <PanelBottomClose />;
+
+export const TRASH_BIN_ICON_SVG = <Trash2 />;
 
 // Shortcuts
 

@@ -73,6 +73,7 @@ export const hu_HU: Translation = {
     stop: 'Leállítás',
     stop_and_dock: 'Leállítás és dokkolás',
     dock: 'Dokkolás',
+    go_to_trash_bin: 'Go to Trash Bin',
   },
 
   // Toast Messages

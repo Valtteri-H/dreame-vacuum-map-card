@@ -186,14 +186,15 @@ export function DreameVacuumCard({ hass, config }: DreameVacuumCardProps) {
   const { toast, showToast, hideToast } = useToast();
 
   // Vacuum services
-  const { handlePause, handleResume, handleStop, handleDock, handleClean, handleCleanSpots } = useVacuumServices({
-    hass,
-    entityId: config.entity,
-    mapEntityId,
-    mapTransform: displayedGeometry.transform,
-    onSuccess: showToast,
-    onError: showToast,
-  });
+  const { handlePause, handleResume, handleStop, handleDock, handleClean, handleCleanSpots, handleGoToTrashBin } =
+    useVacuumServices({
+      hass,
+      entityId: config.entity,
+      mapEntityId,
+      mapTransform: displayedGeometry.transform,
+      onSuccess: showToast,
+      onError: showToast,
+    });
 
   // Handle room toggle with toast
   const handleRoomToggleWithToast = useCallback(
@@ -358,6 +359,7 @@ export function DreameVacuumCard({ hass, config }: DreameVacuumCardProps) {
                 onResume={handleResume}
                 onStop={handleStop}
                 onDock={handleDock}
+                onTrash={handleGoToTrashBin}
               />
             </div>
           </div>

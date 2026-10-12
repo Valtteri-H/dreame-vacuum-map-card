@@ -15,9 +15,11 @@ import { zh_TW } from './zh_TW';
 import { hu_HU } from './hu_HU';
 import { uk } from './uk';
 import { lt } from './lt';
+import { fi } from './fi';
 
 export const locales = {
   en,
+  fi,
   de,
   ru,
   zh,

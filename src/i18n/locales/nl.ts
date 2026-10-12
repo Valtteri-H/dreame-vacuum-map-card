@@ -73,6 +73,7 @@ export const nl: Translation = {
     stop: 'Stop',
     stop_and_dock: 'Stop & Docken',
     dock: 'Docken',
+    go_to_trash_bin: 'Go to Trash Bin',
   },
 
   // Meldingen (Toasts)

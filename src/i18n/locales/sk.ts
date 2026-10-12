@@ -73,6 +73,7 @@ export const sk: Translation = {
     stop: 'Zastaviť',
     stop_and_dock: 'Zastaviť a dokovať',
     dock: 'Dokovať',
+    go_to_trash_bin: 'Go to Trash Bin',
   },
 
   // Toast Messages
